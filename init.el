@@ -17,10 +17,11 @@
 ;; Line numbers
 (global-linum-mode)
 
+(setq make-backup-files nil)
 
 (setq
- x-select-enable-clipboard t
- x-select-enable-primary t
+ select-enable-clipboard t
+ select-enable-primary t
  save-interprogram-paste-before-kill t
  mouse-yank-at-point t)
 
@@ -28,7 +29,7 @@
 
 (set-face-attribute 'default nil :font "Source Code Pro semibold" :height 120)
 
-;; Smex 
+;; Smex
 (smex-initialize)
 (global-set-key (kbd "M-x") 'smex)
 
@@ -37,7 +38,7 @@
 (ido-ubiquitous-mode t)
 
 ;; Projectile
-(projectile-global-mode)
+(projectile-mode)
 
 ;; Editting
 
@@ -69,3 +70,58 @@
 (setq inhibit-startup-message t)
 
 
+
+;; flycheck
+(require 'flycheck-clj-kondo)
+(global-flycheck-mode)
+
+
+
+;; clojure-lsp
+(require 'lsp-mode)
+(require 'use-package)
+(use-package lsp-mode
+	     :ensure t
+	     :hook ((clojure-mode . lsp)
+		    (clojurec-mode . lsp)
+		    (clojurescript-mode . lsp))
+	     :config
+	     ;; add paths to your local installation of project mgmt tools, like lein
+	     (setenv "PATH" (concat
+			     "/usr/local/bin" path-separator
+			     (getenv "PATH")))
+	     (dolist (m '(clojure-mode
+			  clojurec-mode
+			  clojurescript-mode
+			  clojurex-mode))
+	       (add-to-list 'lsp-language-id-configuration `(,m . "clojure")))
+	     ;(setq lsp-clojure-server-command '("/path/to/clojure-lsp"))
+	     );; Optional: In case `clojure-lsp` is not in your $PATH
+
+;; lsp with previews
+(use-package lsp-ui
+  :ensure t
+  :commands lsp-ui-mode)
+
+(use-package company
+  :ensure t)
+
+
+
+
+
+;; Added by emacs
+
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(package-selected-packages
+   '(lsp-mode flycheck-clj-kondo flycheck tagedit smex rainbow-delimiters projectile paredit monokai-theme magit ido-completing-read+ clojure-mode-extra-font-locking cider)))
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ )
