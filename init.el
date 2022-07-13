@@ -8,6 +8,43 @@
 
 (package-initialize)
 
+(defvar my-packages
+  '(paredit
+    smex
+    company
+    magit
+    ivy
+    ;; git-gutter
+    git-gutter-fringe
+;    multiple-cursors
+;    json-reformat
+    clojure-mode
+    clojure-mode-extra-font-locking
+    ido-completing-read+
+    rainbow-delimiters
+    monokai-theme
+    flycheck
+    flycheck-clj-kondo
+    lsp-mode
+    lsp-ui
+    magit
+    use-package
+    cider
+;    origami ;; code-folding
+;    treemacs
+;    lsp-treemacs
+;    find-file-in-project
+    projectile ;; projectile-grep
+;    highlight-symbol
+    ))
+
+(dolist (p my-packages)
+  (when (not (package-installed-p p))
+    (package-install p)))
+
+;; Changes all yes/no questions to y/n type
+(fset 'yes-or-no-p 'y-or-n-p)
+
 ;; UI improvements
 (menu-bar-mode -1)
 (tool-bar-mode -1)
@@ -27,7 +64,7 @@
 
 (load-theme 'monokai t)
 
-(set-face-attribute 'default nil :font "Source Code Pro semibold" :height 120)
+(set-face-attribute 'default nil :height 120)
 
 ;; Smex
 (smex-initialize)
@@ -36,6 +73,30 @@
 ;; ido (auto complete)
 (ido-mode t)
 (ido-ubiquitous-mode t)
+(setq ido-everywhere t)
+  ;; This allows partial matches, e.g. "tl" will match "Tyrion Lannister"
+(setq ido-enable-flex-matching t)
+(setq ido-use-filename-at-point nil)
+(setq ido-file-extensions-order '(".clj" ".sql" ".ts" ".tsx" ".edn" ".txt"))
+(global-set-key (kbd "C-x C-b") 'ibuffer)
+
+
+
+;; 
+;; Sets up exec-path-from shell
+;; https://github.com/purcell/exec-path-from-shell
+(when (memq window-system '(mac ns))
+  (exec-path-from-shell-initialize)
+  (exec-path-from-shell-copy-envs
+   '("PATH")))
+
+
+;; commenting stuff
+(defun toggle-comment-on-line ()
+  "Comment or uncomment current line."
+  (interactive)
+  (comment-or-uncomment-region (line-beginning-position) (line-end-position)))
+(global-set-key (kbd "C-;") 'toggle-comment-on-line)
 
 ;; Projectile
 (projectile-mode)
@@ -75,7 +136,14 @@
 (require 'flycheck-clj-kondo)
 (global-flycheck-mode)
 
+;; unique buffer names
+(require 'uniquify)
+(setf uniquify-buffer-name-style 'forward)
 
+
+;; git gutter
+(require 'git-gutter-fringe)
+(global-git-gutter-mode)
 
 ;; clojure-lsp
 (require 'lsp-mode)
@@ -95,8 +163,10 @@
 			  clojurescript-mode
 			  clojurex-mode))
 	       (add-to-list 'lsp-language-id-configuration `(,m . "clojure")))
-	     ;(setq lsp-clojure-server-command '("/path/to/clojure-lsp"))
-	     );; Optional: In case `clojure-lsp` is not in your $PATH
+	     (setq lsp-clojure-server-command '("/usr/local/bin/clojure-lsp")))
+
+(setq lsp-enable-on-type-formatting nil)
+(setf lsp-ui-sideline-show-code-actions nil)
 
 ;; lsp with previews
 (use-package lsp-ui
@@ -106,9 +176,22 @@
 (use-package company
   :ensure t)
 
+(setq lsp-ui-doc-enable nil)
+(setq lsp-ui-doc-show-with-mouse nil)
+(setq lsp-ui-doc-show-with-cursor nil)
+
+;; disable lsp formatting, _really_ slow
+(setq lsp-enable-indentation nil)
 
 
+;;cider stuff
+(setq cider-lein-command "/usr/local/bin/lein")
 
+
+;; ivy autocomplete
+(ivy-mode 1)
+(setq ivy-use-virtual-buffers t)
+(setq ivy-count-format "(%d/%d) ")
 
 ;; Added by emacs
 
@@ -117,8 +200,9 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
+ '(lsp-ui-doc-enable nil)
  '(package-selected-packages
-   '(lsp-mode flycheck-clj-kondo flycheck tagedit smex rainbow-delimiters projectile paredit monokai-theme magit ido-completing-read+ clojure-mode-extra-font-locking cider)))
+   '(ivy use-package git-gutter-fringe exec-path-from-shell lsp-mode flycheck-clj-kondo flycheck tagedit smex rainbow-delimiters projectile paredit monokai-theme magit ido-completing-read+ clojure-mode-extra-font-locking cider)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
