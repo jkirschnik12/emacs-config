@@ -16,8 +16,8 @@
     ivy
     ;; git-gutter
     git-gutter-fringe
-;    multiple-cursors
-;    json-reformat
+					;    multiple-cursors
+					;    json-reformat
     clojure-mode
     clojure-mode-extra-font-locking
     ido-completing-read+
@@ -30,12 +30,12 @@
     magit
     use-package
     cider
-;    origami ;; code-folding
-;    treemacs
-;    lsp-treemacs
-;    find-file-in-project
-    projectile ;; projectile-grep
-;    highlight-symbol
+					;    origami ;; code-folding
+					;    treemacs
+					;    lsp-treemacs
+					;    find-file-in-project
+    projectile				;; projectile-grep
+					;    highlight-symbol
     ))
 
 (dolist (p my-packages)
@@ -67,17 +67,16 @@
 (set-face-attribute 'default nil :height 120)
 
 ;; Smex
-(smex-initialize)
-(global-set-key (kbd "M-x") 'smex)
-
+;(smex-initialize)
+;(global-set-key (kbd "M-x") 'smex)
 ;; ido (auto complete)
-(ido-mode t)
-(ido-ubiquitous-mode t)
-(setq ido-everywhere t)
+; (ido-mode t)
+; (ido-ubiquitous-mode t)
+; (setq ido-everywhere t)
   ;; This allows partial matches, e.g. "tl" will match "Tyrion Lannister"
-(setq ido-enable-flex-matching t)
-(setq ido-use-filename-at-point nil)
-(setq ido-file-extensions-order '(".clj" ".sql" ".ts" ".tsx" ".edn" ".txt"))
+; (setq ido-enable-flex-matching t)
+; (setq ido-use-filename-at-point nil)
+; (setq ido-file-extensions-order '(".clj" ".sql" ".ts" ".tsx" ".edn" ".txt"))
 (global-set-key (kbd "C-x C-b") 'ibuffer)
 
 
@@ -99,7 +98,11 @@
 (global-set-key (kbd "C-;") 'toggle-comment-on-line)
 
 ;; Projectile
+(require 'ivy)
 (projectile-mode)
+(setq projectile-completion-system 'ivy)
+(define-key projectile-mode-map (kbd "C-c p f") 'projectile-find-file)
+(define-key projectile-mode-map (kbd "C-c p g") 'projectile-grep)
 
 ;; Editting
 
@@ -107,7 +110,7 @@
 (show-paren-mode 1)
 
 ;; Highlight current line
-(global-hl-line-mode 1)
+;;(global-hl-line-mode 0)
 
 ;; Lisp paredit and doc stuff
 (autoload 'enable-paredit-mode "paredit" "structural editting for lisps" t)
@@ -192,6 +195,46 @@
 (ivy-mode 1)
 (setq ivy-use-virtual-buffers t)
 (setq ivy-count-format "(%d/%d) ")
+(counsel-mode)
+(global-set-key (kbd "C-s") 'swiper)
+(global-set-key (kbd "C-r") 'swiper)
+
+
+;; toggle vertiacal horizontal buffers
+(defun toggle-frame-split ()
+  "If the frame is split vertically, split it horizontally or vice versa.
+Assumes that the frame is only split into two."
+  (interactive)
+  (unless (= (length (window-list)) 2) (error "Can only toggle a frame split in two"))
+  (let ((split-vertically-p (window-combined-p)))
+    (delete-window) ; closes current window
+    (if split-vertically-p
+        (split-window-horizontally)
+      (split-window-vertically)) ; gives us a split with the other window twice
+    (switch-to-buffer nil))) ; restore the original window in this part of the frame
+
+;; I don't use the default binding of 'C-x 5', so use toggle-frame-split instead
+(global-set-key (kbd "C-x 5") 'toggle-frame-split)
+
+
+
+;; Nick's git command
+(require 'magit)
+(defun magit-commit-msg-prefix ()
+  "Search COMMIT_EDITMSG buffer for branch name, and paste at the
+beginning of the buffer."
+  (interactive)
+  (search-forward-regexp "On branch .*SW-")
+  (backward-char 3)
+  (let ((beg (point)))
+    (kill-word 2)
+    (yank)
+    (beginning-of-buffer)
+    (yank)
+    (insert " ")))
+
+;; Bind to Control-c, Control-u
+(define-key git-commit-mode-map (kbd "C-c C-u") 'magit-commit-msg-prefix)
 
 ;; Added by emacs
 
@@ -202,7 +245,7 @@
  ;; If there is more than one, they won't work right.
  '(lsp-ui-doc-enable nil)
  '(package-selected-packages
-   '(ivy use-package git-gutter-fringe exec-path-from-shell lsp-mode flycheck-clj-kondo flycheck tagedit smex rainbow-delimiters projectile paredit monokai-theme magit ido-completing-read+ clojure-mode-extra-font-locking cider)))
+   '(counsel ivy use-package git-gutter-fringe exec-path-from-shell lsp-mode flycheck-clj-kondo flycheck tagedit smex rainbow-delimiters projectile paredit monokai-theme magit ido-completing-read+ clojure-mode-extra-font-locking cider)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
