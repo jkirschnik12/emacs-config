@@ -7,7 +7,7 @@
              '("melpa-stable" . "http://stable.melpa.org/packages/") t)
 
 (package-initialize)
-
+(server-start)
 (defvar my-packages
   '(paredit
     smex
@@ -16,6 +16,7 @@
     ivy
     ;; git-gutter
     git-gutter-fringe
+    git-gutter
 					;    multiple-cursors
 					;    json-reformat
     clojure-mode
@@ -26,10 +27,11 @@
     flycheck
     flycheck-clj-kondo
     lsp-mode
-    lsp-ui
+;;    lsp-ui
     magit
     use-package
     cider
+    multiple-cursors ripgrep
 					;    origami ;; code-folding
 					;    treemacs
 					;    lsp-treemacs
@@ -41,6 +43,11 @@
 (dolist (p my-packages)
   (when (not (package-installed-p p))
     (package-install p)))
+
+(require 'rainbow-delimiters)
+(global-git-gutter-mode +1)
+
+(add-hook 'prog-mode-hook 'rainbow-delimiters-mode)
 
 ;; Changes all yes/no questions to y/n type
 (fset 'yes-or-no-p 'y-or-n-p)
@@ -101,8 +108,14 @@
 (require 'ivy)
 (projectile-mode)
 (setq projectile-completion-system 'ivy)
-(define-key projectile-mode-map (kbd "C-c p f") 'projectile-find-file)
-(define-key projectile-mode-map (kbd "C-c p g") 'projectile-grep)
+(define-key projectile-mode-map (kbd "s-p") 'projectile-command-map)
+(setq recentf-save-file (concat user-emacs-directory ".recentf"))
+(require 'recentf)
+(recentf-mode 1)
+(setq projectile-sort-order 'recentf)
+(setq ivy-re-builders-alist
+      '((read-file-name-internal . ivy--regex-fuzzy)
+        (t . ivy--regex-plus)))
 
 ;; Editting
 
@@ -123,11 +136,18 @@
 (add-hook 'scheme-mode-hook           #'enable-paredit-mode)
 (add-hook 'clojure-mode-hook          #'enable-paredit-mode)
 (add-hook 'cider-repl-mode-hook       #'enable-paredit-mode)
-
+;; cider company mode hints
+(add-hook 'cider-repl-mode-hook #'company-mode)
+(add-hook 'cider-mode-hook #'company-mode)
+(add-hook 'cider-repl-mode-hook #'cider-company-enable-fuzzy-completion)
+(add-hook 'cider-mode-hook #'cider-company-enable-fuzzy-completion)
+;; eldoc
 (add-hook 'emacs-lisp-mode-hook 'turn-on-eldoc-mode)
 (add-hook 'lisp-interaction-mode-hook 'turn-on-eldoc-mode)
 (add-hook 'ielm-mode-hook 'turn-on-eldoc-mode)
 (add-hook 'cider-mode-hook 'eldoc-mode)
+
+(global-set-key (kbd "TAB") #'company-indent-or-complete-common)
 
 ;; Misc
 (setq create-lockfiles nil)
@@ -168,20 +188,22 @@
 	       (add-to-list 'lsp-language-id-configuration `(,m . "clojure")))
 	     (setq lsp-clojure-server-command '("/usr/local/bin/clojure-lsp")))
 
-(setq lsp-enable-on-type-formatting nil)
-(setf lsp-ui-sideline-show-code-actions nil)
+;; (setq lsp-enable-on-type-formatting nil)
+;; (setf lsp-ui-sideline-show-code-actions nil)
 
 ;; lsp with previews
-(use-package lsp-ui
-  :ensure t
-  :commands lsp-ui-mode)
+;; (use-package lsp-ui
+;;   :ensure t
+;;   :commands lsp-ui-mode)
+
+(global-company-mode)
 
 (use-package company
   :ensure t)
 
-(setq lsp-ui-doc-enable nil)
-(setq lsp-ui-doc-show-with-mouse nil)
-(setq lsp-ui-doc-show-with-cursor nil)
+;; (setq lsp-ui-doc-enable nil)
+;; (setq lsp-ui-doc-show-with-mouse nil)
+;; (setq lsp-ui-doc-show-with-cursor nil)
 
 ;; disable lsp formatting, _really_ slow
 (setq lsp-enable-indentation nil)
@@ -189,6 +211,7 @@
 
 ;;cider stuff
 (setq cider-lein-command "/usr/local/bin/lein")
+(setq cider-save-file-on-load t)
 
 
 ;; ivy autocomplete
@@ -236,6 +259,15 @@ beginning of the buffer."
 ;; Bind to Control-c, Control-u
 (define-key git-commit-mode-map (kbd "C-c C-u") 'magit-commit-msg-prefix)
 
+
+;; multiple cursors
+(require 'multiple-cursors)
+(global-set-key (kbd "C-S-c C-S-c") 'mc/edit-lines)
+(global-set-key (kbd "C->") 'mc/mark-next-like-this)
+(global-set-key (kbd "C-<") 'mc/mark-previous-like-this)
+(global-set-key (kbd "C-c C-<") 'mc/mark-all-like-this)
+
+
 ;; Added by emacs
 
 (custom-set-variables
@@ -243,9 +275,10 @@ beginning of the buffer."
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
+ '(git-gutter:update-interval 2)
  '(lsp-ui-doc-enable nil)
  '(package-selected-packages
-   '(counsel ivy use-package git-gutter-fringe exec-path-from-shell lsp-mode flycheck-clj-kondo flycheck tagedit smex rainbow-delimiters projectile paredit monokai-theme magit ido-completing-read+ clojure-mode-extra-font-locking cider)))
+   '(multiple-cursors ripgrep web-mode flx counsel ivy use-package git-gutter-fringe exec-path-from-shell lsp-mode flycheck-clj-kondo flycheck tagedit smex rainbow-delimiters projectile paredit monokai-theme magit ido-completing-read+ clojure-mode-extra-font-locking cider)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
