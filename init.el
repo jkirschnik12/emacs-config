@@ -15,6 +15,7 @@
     company
     magit
     ivy
+    counsel
     ;; git-gutter
     git-gutter-fringe
     git-gutter
@@ -63,7 +64,6 @@
 (global-linum-mode)
 
 (setq make-backup-files nil)
-
 (setq
  select-enable-clipboard t
  select-enable-primary t
@@ -180,14 +180,14 @@
 	     :config
 	     ;; add paths to your local installation of project mgmt tools, like lein
 	     (setenv "PATH" (concat
-			     "/usr/local/bin" path-separator
+			     "/usr/bin" path-separator
 			     (getenv "PATH")))
 	     (dolist (m '(clojure-mode
 			  clojurec-mode
 			  clojurescript-mode
 			  clojurex-mode))
 	       (add-to-list 'lsp-language-id-configuration `(,m . "clojure")))
-	     (setq lsp-clojure-server-command '("/usr/local/bin/clojure-lsp")))
+	     (setq lsp-clojure-server-command '("/usr/bin/clojure-lsp")))
 
 (setq lsp-enable-on-type-formatting nil)
 (setf lsp-ui-sideline-show-code-actions nil)
@@ -213,8 +213,10 @@
 
 
 ;;cider stuff
-(setq cider-lein-command "/usr/local/bin/lein")
+
+
 (setq cider-save-file-on-load t)
+(setq cider-lein-command "/usr/bin/lein")
 
 
 ;; ivy autocomplete
