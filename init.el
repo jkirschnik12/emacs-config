@@ -2,12 +2,13 @@
 (add-to-list 'package-archives
              '("tromey" . "http://tromey.com/elpa/") t)
 (add-to-list 'package-archives
-             '("melpa" . "http://melpa.milkbox.net/packages/") t)
+             '("melpa" . "https://melpa.org/packages/") t)
 (add-to-list 'package-archives
              '("melpa-stable" . "http://stable.melpa.org/packages/") t)
 
 (package-initialize)
 (server-start)
+
 (defvar my-packages
   '(paredit
     smex
@@ -27,7 +28,7 @@
     flycheck
     flycheck-clj-kondo
     lsp-mode
-;;    lsp-ui
+    lsp-ui
     magit
     use-package
     cider
@@ -188,22 +189,24 @@
 	       (add-to-list 'lsp-language-id-configuration `(,m . "clojure")))
 	     (setq lsp-clojure-server-command '("/usr/local/bin/clojure-lsp")))
 
-;; (setq lsp-enable-on-type-formatting nil)
-;; (setf lsp-ui-sideline-show-code-actions nil)
+(setq lsp-enable-on-type-formatting nil)
+(setf lsp-ui-sideline-show-code-actions nil)
+(setq lsp-lens-enable nil)
+(setq lsp-modeline-diagnostics-enable nil)
 
 ;; lsp with previews
-;; (use-package lsp-ui
-;;   :ensure t
-;;   :commands lsp-ui-mode)
+(use-package lsp-ui
+  :ensure t
+  :commands lsp-ui-mode)
 
 (global-company-mode)
 
 (use-package company
   :ensure t)
 
-;; (setq lsp-ui-doc-enable nil)
-;; (setq lsp-ui-doc-show-with-mouse nil)
-;; (setq lsp-ui-doc-show-with-cursor nil)
+(setq lsp-ui-doc-enable nil)
+(setq lsp-ui-doc-show-with-mouse nil)
+(setq lsp-ui-doc-show-with-cursor nil)
 
 ;; disable lsp formatting, _really_ slow
 (setq lsp-enable-indentation nil)
@@ -268,6 +271,9 @@ beginning of the buffer."
 (global-set-key (kbd "C-c C-<") 'mc/mark-all-like-this)
 
 
+;;eshell
+(global-set-key (kbd "C-s-t") 'eshell)
+
 ;; Added by emacs
 
 (custom-set-variables
@@ -278,7 +284,7 @@ beginning of the buffer."
  '(git-gutter:update-interval 2)
  '(lsp-ui-doc-enable nil)
  '(package-selected-packages
-   '(multiple-cursors ripgrep web-mode flx counsel ivy use-package git-gutter-fringe exec-path-from-shell lsp-mode flycheck-clj-kondo flycheck tagedit smex rainbow-delimiters projectile paredit monokai-theme magit ido-completing-read+ clojure-mode-extra-font-locking cider)))
+   '(multiple-cursors ripgrep web-mode flx counsel ivy use-package git-gutter-fringe exec-path-from-shell flycheck-clj-kondo flycheck tagedit smex rainbow-delimiters projectile paredit monokai-theme magit ido-completing-read+ clojure-mode-extra-font-locking cider)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
