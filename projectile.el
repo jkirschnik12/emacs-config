@@ -1,0 +1,11 @@
+(require 'ivy)
+(projectile-mode)
+(setq projectile-completion-system 'ivy)
+(define-key projectile-mode-map (kbd "s-p") 'projectile-command-map)
+(setq recentf-save-file (concat user-emacs-directory ".recentf"))
+(require 'recentf)
+(recentf-mode 1)
+(setq projectile-sort-order 'recentf)
+(setq ivy-re-builders-alist
+      '((read-file-name-internal . ivy--regex-fuzzy)
+        (t . ivy--regex-plus)))
