@@ -23,10 +23,9 @@
     flycheck-clj-kondo
     ripgrep
     swiper
-    lsp-mode
-    lsp-ivy
+    eglot
     company
-))
+    diff-hl))
 
 ;; Install all used packages
 (dolist (p my-packages)
@@ -50,13 +49,12 @@
 (add-hook 'ielm-mode-hook 'turn-on-eldoc-mode)
 (add-hook 'cider-mode-hook 'eldoc-mode)
 
-
-;; lsp
-(setq lsp-lens-enable nil)
-
 ;; company
 (add-hook 'after-init-hook 'global-company-mode)
 (setq company-selection-wrap-around t)
+
+;; find-refs
+(define-key clojure-mode-map (kbd "C-c C-r C-r") 'xref-find-references)
 
 
 ;; Loading other configs
@@ -65,15 +63,13 @@
 (load "~/.emacs.d/ivy.el")
 (load "~/.emacs.d/projectile.el")
 
-
-
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(package-selected-packages
-   '(company lsp-ivy lsp-mode ripgrep flycheck use-package projectile multiple-cursors cider monokai-theme rainbow-delimiters clojure-mode ivy magit paredit)))
+   '(eglot elgot diff-hl company ripgrep flycheck use-package projectile multiple-cursors cider monokai-theme rainbow-delimiters clojure-mode ivy magit paredit)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.

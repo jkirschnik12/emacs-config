@@ -10,29 +10,13 @@
 (add-hook 'cider-repl-mode-hook       #'enable-paredit-mode)
 (add-hook 'cider-repl-mode-hook       #'rainbow-delimiters-mode)
 
+;; eglot
+(add-hook 'clojure-mode-hook 'eglot-ensure)
+(setq eglot-connect-timeout 60)
 
 ;;; Clojure
 (setq cider-save-file-on-load t)
 (setq cider-lein-command "/usr/bin/lein")
+;; Uncomment for cider completion
 ;; (setq tab-always-indent 'complete)
-
-
-;; lsp mode
-(use-package lsp-mode
-  :ensure t
-  :hook ((clojure-mode . lsp)
-         (clojurec-mode . lsp)
-         (clojurescript-mode . lsp))
-  :config
-  ;; add paths to your local installation of project mgmt tools, like lein
-  (setenv "PATH" (concat
-                  "/usr/local/bin" path-separator
-                  (getenv "PATH")))
-  (dolist (m '(clojure-mode
-               clojurec-mode
-               clojurescript-mode
-               clojurex-mode))
-    (add-to-list 'lsp-language-id-configuration `(,m . "clojure")))
-  (setq lsp-clojure-server-command '("/usr/bin/clojure-lsp")))
-
 
