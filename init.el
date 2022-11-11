@@ -7,6 +7,11 @@
 (package-initialize)
 (server-start)
 
+
+(when (eq system-type 'darwin) ;; mac specific settings
+  (setq mac-command-modifier 'meta)
+  (setq mac-option-modifier 'super))
+
 (defvar my-packages '(
     paredit
     magit
@@ -23,9 +28,12 @@
     flycheck-clj-kondo
     ripgrep
     swiper
-    eglot
+    s
     company
-    diff-hl))
+    eglot
+    exec-path-from-shell
+    diff-hl
+))
 
 ;; Install all used packages
 (dolist (p my-packages)
@@ -53,15 +61,13 @@
 (add-hook 'after-init-hook 'global-company-mode)
 (setq company-selection-wrap-around t)
 
-;; find-refs
-(define-key clojure-mode-map (kbd "C-c C-r C-r") 'xref-find-references)
-
-
 ;; Loading other configs
 (load "~/.emacs.d/editting.el")
 (load "~/.emacs.d/lisp.el")
 (load "~/.emacs.d/ivy.el")
 (load "~/.emacs.d/projectile.el")
+(load "~/.emacs.d/sw.el")
+(load "~/.emacs.d/mac-shell-integration.el")
 
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
@@ -69,7 +75,8 @@
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(package-selected-packages
-   '(eglot elgot diff-hl company ripgrep flycheck use-package projectile multiple-cursors cider monokai-theme rainbow-delimiters clojure-mode ivy magit paredit)))
+   '(exec-path-from-shell tide s eglot diff-hl hugsql-ghosts git-gutter company lsp-ivy lsp-mode ripgrep flycheck
+   use-package projectile multiple-cursors cider monokai-theme rainbow-delimiters clojure-mode ivy magit paredit)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.

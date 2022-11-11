@@ -30,13 +30,11 @@
 (global-set-key (kbd "C-<") 'mc/mark-previous-like-this)
 (global-set-key (kbd "C-c C-<") 'mc/mark-all-like-this)
 
-;; diff-hl
-;(global-diff-hl-mode)
 
-;; commenting
-(defun toggle-comment-on-line ()
-  "Comment or uncomment current line."
-  (interactive)
-  (comment-or-uncomment-region (line-beginning-position) (line-end-position)))
+;; Comments
+(global-set-key (kbd "C-M-;") 'comment-or-uncomment-region)
+(global-set-key (kbd "C-;") 'comment-line)
 
-(global-set-key (kbd "C-;") 'toggle-comment-on-line)
+;; delete-indentation
+(global-set-key (kbd "C-c C-d") 'delete-indentation)
+
