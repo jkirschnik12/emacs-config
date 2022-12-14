@@ -37,4 +37,61 @@
 
 ;; delete-indentation
 (global-set-key (kbd "C-c C-d") 'delete-indentation)
+;;(global-set-key (kbd "M"))
 
+(require 'swiper)
+(global-set-key (kbd "C-M-s") 'swiper-thing-at-point)
+
+;; delete
+(global-set-key [C-M-backspace] 'delete-indentation)
+
+
+;; More standard-like C-backspace
+(defun my-kill-back ()
+  (interactive)
+  (if (bolp)
+      (backward-delete-char 1)
+    (if (string-match "[^[:space:]]" (buffer-substring (point-at-bol) (point)))
+        (backward-kill-word 1)
+      (delete-region (point-at-bol) (point)))))
+
+(global-set-key [C-backspace] 'my-kill-back)
+;; Prefer vertical split
+;; (setq split-height-threshold nil)
+;; (setq split-width-threshold 80)
+
+;; spelling
+;; (dolist (hook '(text-mode-hook clojure-mode-hook))
+;;       (add-hook hook (lambda () (flyspell-mode 1))))
+;;     (dolist (hook '(change-log-mode-hook log-edit-mode-hook))
+;;       (add-hook hook (lambda () (flyspell-mode -1))))
+
+;; (setq flyspell-issue-message-flag nil)
+
+(defun toggle-frame-split ()
+  (interactive)
+  (if (= (count-windows) 2)
+      (let* ((this-win-buffer (window-buffer))
+	     (next-win-buffer (window-buffer (next-window)))
+	     (this-win-edges (window-edges (selected-window)))
+	     (next-win-edges (window-edges (next-window)))
+	     (this-win-2nd (not (and (<= (car this-win-edges)
+					 (car next-win-edges))
+				     (<= (cadr this-win-edges)
+					 (cadr next-win-edges)))))
+	     (splitter
+	      (if (= (car this-win-edges)
+		     (car (window-edges (next-window))))
+		  'split-window-horizontally
+		'split-window-vertically)))
+	(delete-other-windows)
+	(let ((first-win (selected-window)))
+	  (funcall splitter)
+	  (if this-win-2nd (other-window 1))
+	  (set-window-buffer (selected-window) this-win-buffer)
+	  (set-window-buffer (next-window) next-win-buffer)
+	  (select-window first-win)
+	  (if this-win-2nd (other-window 1))))))
+
+;; I don't use the default binding of 'C-x 5', so use toggle-frame-split instead
+(global-set-key (kbd "C-x 5") 'toggle-frame-split)

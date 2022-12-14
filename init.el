@@ -7,10 +7,10 @@
 (package-initialize)
 (server-start)
 
+(when (eq system-type 'darwin)
+  (setq mac-option-modifier 'meta)
+  (setq mac-command-modifier 'control))
 
-(when (eq system-type 'darwin) ;; mac specific settings
-  (setq mac-command-modifier 'meta)
-  (setq mac-option-modifier 'super))
 
 (defvar my-packages '(
     paredit
@@ -28,11 +28,15 @@
     flycheck-clj-kondo
     ripgrep
     swiper
+    lsp-mode
     s
+    lsp-ivy
     company
     eglot
     exec-path-from-shell
-    diff-hl
+    jarchive
+    lsp-ui
+    lsp-ivy
 ))
 
 ;; Install all used packages
@@ -69,14 +73,14 @@
 (load "~/.emacs.d/sw.el")
 (load "~/.emacs.d/mac-shell-integration.el")
 
+
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(package-selected-packages
-   '(exec-path-from-shell tide s eglot diff-hl hugsql-ghosts git-gutter company lsp-ivy lsp-mode ripgrep flycheck
-   use-package projectile multiple-cursors cider monokai-theme rainbow-delimiters clojure-mode ivy magit paredit)))
+   '(web-mode jarchive exec-path-from-shell tide s eglot hugsql-ghosts git-gutter company ripgrep flycheck use-package projectile multiple-cursors cider monokai-theme rainbow-delimiters clojure-mode ivy magit paredit)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
