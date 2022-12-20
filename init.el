@@ -109,6 +109,8 @@
   (exec-path-from-shell-copy-envs
    '("PATH")))
 
+(global-set-key (kbd "C-c i") 'counsel-imenu)
+
 
 ;; Loading other configs
 (load "~/.emacs.d/editting.el")
@@ -126,7 +128,7 @@
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(package-selected-packages
-   '(which-key ivy-rich rjsx-mode hl-todo ace-window avy helm git-gutter-fringe web-mode jarchive exec-path-from-shell tide s eglot hugsql-ghosts git-gutter company ripgrep flycheck use-package projectile multiple-cursors cider monokai-theme rainbow-delimiters clojure-mode ivy magit paredit)))
+   '(counsel-projectile which-key ivy-rich rjsx-mode hl-todo ace-window avy git-gutter-fringe web-mode jarchive exec-path-from-shell tide s eglot hugsql-ghosts git-gutter company ripgrep flycheck use-package projectile multiple-cursors cider monokai-theme rainbow-delimiters clojure-mode ivy magit paredit)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.

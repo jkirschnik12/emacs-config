@@ -35,6 +35,7 @@
   (define-key lsp-mode-map (kbd "C-c l a") 'lsp-execute-code-action)
   (define-key lsp-mode-map (kbd "C-c l d") 'lsp-ui-doc-glance)
   (define-key lsp-mode-map (kbd "C-c l p") 'lsp-ui-peek-find-references)
+  (define-key lsp-mode-map (kbd "C-c l i") 'lsp-ui-imenu)
 
   ;; add paths to your local installation of project mgmt tools, like lein
   (setenv "PATH" (concat
@@ -80,8 +81,3 @@
 
 ;; jarchive
 (jarchive-setup)
-
-;; projectile
-(require 'projectile)
-(define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map)
-(define-key projectile-mode-map (kbd "C-c p s") 'projectile-ripgrep)

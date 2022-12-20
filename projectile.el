@@ -1,4 +1,10 @@
 (require 'ivy)
+(require 'projectile)
+(require 'recentf)
+;; projectile
+(require 'projectile)
+(define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map)
+(define-key projectile-mode-map (kbd "C-c p s") 'counsel-projectile-rg)
 (projectile-mode)
 (setq projectile-completion-system 'ivy)
 (define-key projectile-mode-map (kbd "s-p") 'projectile-command-map)
