@@ -3,6 +3,7 @@
 (require 'cider)
 (require 'eldoc)
 (require 'use-package)
+(require 'lsp-ui)
 
 (autoload 'penable-paredit-mode "paredit" "structural editting for lisps" t)
 (add-hook 'emacs-list-mode-hook #'enable-paredit-mode)
@@ -71,11 +72,11 @@
 (setq cider-use-xref t)
 ;; lowering precedence
 (setq cider-xref-fn-depth 90)
+(define-key cider-repl-mode-map (kbd "C-c C-o") 'cider-repl-clear-buffer)
+(setq cider-repl-display-help-banner nil)
 ;; (setq tab-always-indent 'complete)
 
 (global-set-key (kbd "C-c C-r C-r") 'xref-find-references)
-
-(define-key cider-repl-mode-map (kbd "C-c C-o") 'cider-repl-clear-buffer)
 
 ;; jarchive
 (jarchive-setup)

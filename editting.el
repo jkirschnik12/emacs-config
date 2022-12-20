@@ -95,3 +95,29 @@
 
 ;; I don't use the default binding of 'C-x 5', so use toggle-frame-split instead
 (global-set-key (kbd "C-x 5") 'toggle-frame-split)
+
+
+;; avy
+(require 'avy)
+;; (global-set-key (kbd "C-'") 'avy-goto-char-2)
+(global-set-key (kbd "M-g l") 'avy-goto-line)
+(global-set-key (kbd "C-'") 'avy-goto-word-1)
+(setq avy-all-windows nil)
+
+(require 'ace-window)
+(global-set-key (kbd "C-x o") 'ace-window)
+
+;; hl-todo
+(require 'hl-todo)
+(global-hl-todo-mode)
+(define-key hl-todo-mode-map (kbd "C-c ; p") 'hl-todo-previous)
+(define-key hl-todo-mode-map (kbd "C-c ; n") 'hl-todo-next)
+
+(setq hl-todo-keyword-faces
+	'(("TODO"   . "#ffe700")
+	  ("todo"   . "#ffe700")
+	  ("FIXME"  . "#FF0000")
+	  ("DEBUG"  . "#A020F0")
+	  ("GOTCHA" . "#FF4500")
+	  ("STUB"   . "#1E90FF")))
+
