@@ -74,6 +74,7 @@
 ;; lowering precedence
 (setq cider-xref-fn-depth 90)
 (define-key cider-repl-mode-map (kbd "C-c C-o") 'cider-repl-clear-buffer)
+(define-key cider-mode-map (kbd "C-c C-o") 'cider-repl-clear-buffer)
 (setq cider-repl-display-help-banner nil)
 ;; (setq tab-always-indent 'complete)
 

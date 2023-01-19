@@ -5,6 +5,31 @@
 (setq create-lockfiles nil)
 (setq inhibit-startup-message t)
 
+(require 'cl-lib)
+
+;; (defun one-window-hook ()
+;;   "Make font size bigger when there's only one buffer open."
+;;   (let ((wc (count-windows)))
+;;     (if (or (= wc 1) (and (= wc 2) (or (active-minibuffer-window)
+;; 				       (cl-remove-if-not (lambda (w)
+;; 							   (string-match-p (regexp-quote "*which-key*") (format "%s" w))) (window-list-1)))))
+;; 	(set-face-attribute 'default nil :height 140)
+;;       (set-face-attribute 'default nil :height 120))))
+
+;; (add-hook 'window-configuration-change-hook
+;;           'one-window-hook)
+
+(defun font-12 ()
+  "Change font to height 12."
+  (interactive)
+  (set-face-attribute 'default nil :height 120))
+
+(defun font-14 ()
+  "Change font to height 14."
+  (interactive)
+  (set-face-attribute 'default nil :height 140)
+  )
+
 ;; UI improvements
 (menu-bar-mode -1)
 (tool-bar-mode -1)
@@ -41,9 +66,6 @@
 
 (require 'swiper)
 (global-set-key (kbd "C-M-s") 'swiper-thing-at-point)
-
-;; delete
-(global-set-key [C-M-backspace] 'delete-indentation)
 
 
 ;; More standard-like C-backspace

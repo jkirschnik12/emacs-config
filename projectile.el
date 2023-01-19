@@ -15,3 +15,4 @@
 (setq ivy-re-builders-alist
       '((read-file-name-internal . ivy--regex-fuzzy)
         (t . ivy--regex-plus)))
+(setq projectile-create-missing-test-files t)
