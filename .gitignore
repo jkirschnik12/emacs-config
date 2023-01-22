@@ -7,3 +7,8 @@ projectile-bookmarks.eld
 .recentf
 recentf
 .idea
+auto-save-list/
+eclipse.jdt.ls/
+projectile.cache
+projects
+workspace/
