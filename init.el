@@ -57,7 +57,11 @@
 		      which-key
 		      yaml-mode
 		      lsp-java
-		      ))
+		      hl-todo
+		      web-mode
+		      counsel-projectile
+		      darkroom
+		      tide))
 (require 'eshell)
 
 (defun dev-eshell ()
@@ -91,6 +95,14 @@
 
 (add-hook 'eshell-mode-hook #'disable-line-num)
 (which-key-mode)
+
+(require 'darkroom)
+
+(add-hook 'darkroom-mode-hook #'(lambda ()
+				  ;; (my-buffer-face-mode-fixed)
+				  (turn-on-visual-line-mode)
+				  (linum-mode -1)))
+
 
 ;; Install all used packages
 (dolist (p my-packages)
