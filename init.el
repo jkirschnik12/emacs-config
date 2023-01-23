@@ -61,7 +61,14 @@
 		      web-mode
 		      counsel-projectile
 		      darkroom
-		      tide))
+		      ace-window))
+
+;; Install all used packages
+(dolist (p my-packages)
+  (when (not (package-installed-p p))
+    (package-install p)))
+
+
 (require 'eshell)
 
 (defun dev-eshell ()
@@ -102,13 +109,6 @@
 				  ;; (my-buffer-face-mode-fixed)
 				  (turn-on-visual-line-mode)
 				  (linum-mode -1)))
-
-
-;; Install all used packages
-(dolist (p my-packages)
-  (when (not (package-installed-p p))
-    (package-install p)))
-
 (require 'ivy-rich)
 (ivy-rich-mode 1)
 (setcdr (assq t ivy-format-functions-alist) #'ivy-format-function-line)
