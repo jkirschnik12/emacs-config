@@ -103,8 +103,6 @@
 (add-hook 'eshell-mode-hook #'disable-line-num)
 (which-key-mode)
 
-(require 'darkroom)
-
 (add-hook 'darkroom-mode-hook #'(lambda ()
 				  ;; (my-buffer-face-mode-fixed)
 				  (turn-on-visual-line-mode)

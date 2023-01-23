@@ -39,15 +39,17 @@
 
   ;; add paths to your local installation of project mgmt tools, like lein
   (setenv "PATH" (concat
-		  "/usr/bin" path-separator
+		  "/opt/homebrew/bin" path-separator
 		  (getenv "PATH")))
   (dolist (m '(clojure-mode
 	       clojurec-mode
 	       clojurescript-mode
 	       clojurex-mode))
-    (add-to-list 'lsp-language-id-configuration `(,m . "clojure")))
-  (setq lsp-clojure-server-command '("/usr/local/bin/clojure-lsp")))
+    (add-to-list 'lsp-language-id-configuration `(,m . "clojure"))))
 
+(setq lsp-headerline-breadcrumb-enable t)
+(setq lsp-headerline-breadcrumb-enable-diagnostics nil)
+(setq lsp-headerline-breadcrumb-segments '(project file symbols))
 
 (setq lsp-enable-on-type-formatting nil)
 (setf lsp-ui-sideline-show-code-actions nil)
@@ -59,7 +61,8 @@
   :commands lsp-ui-mode)
 
 (setq lsp-ui-doc-enable t)
-(setq lsp-ui-doc-show-with-mouse t)
+;; this got annoying
+(setq lsp-ui-doc-show-with-mouse nil)
 ;; (setq lsp-ui-doc-show-with-cursor nil)
 
 ;; disable lsp formatting, _really_ slow
@@ -68,7 +71,7 @@
 
 ;;; Clojure (cider)
 (setq cider-save-file-on-load t)
-(setq cider-lein-command "/usr/local/bin/lein")
+(setq cider-lein-command "/opt/homebrew/bin/lein")
 (setq cider-repl-buffer-size-limit 100000)
 (setq cider-use-xref t)
 ;; lowering precedence
