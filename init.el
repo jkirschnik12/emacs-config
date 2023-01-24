@@ -19,9 +19,9 @@
 (require 'org)
 
 (add-hook 'org-mode-hook (lambda ()
-			  (visual-line-mode)
-			  (darkroom-mode)
-			  (linum-mode -1)))
+			   (visual-line-mode)
+			   (darkroom-mode)
+			   (linum-mode -1)))
 
 (add-hook 'after-init-hook 'toggle-frame-maximized)
 (defvar my-packages '(
@@ -71,14 +71,7 @@
 
 (require 'eshell)
 
-(defun dev-eshell ()
-  "Opens eshell in the dev-environment."
-  (interactive)
-  (eshell)
-  (cd "~/code/dev-environment")
-  )
-
-(global-set-key (kbd "C-x j") 'dev-eshell)
+(global-set-key (kbd "C-x j") 'eshell)
 (global-set-key (kbd "C-x C-b") 'ibuffer)
 (require 'ibuf-ext)
 (add-to-list 'ibuffer-never-show-predicates "^\\*")
@@ -88,12 +81,8 @@
 
 ;; just for eshell convenience
 (defalias 'ff 'find-file)
-
-(require 'eshell)
-(defun de ()
-  "change dir to dev-env in eshell"
-  (interactive)
-  (eshell/cd "~/code/dev-environment"))
+(defalias 'de (lambda ()
+		(cd "~/code/dev-environment")))
 
 (defalias 'cl 'eshell/clear-scrollback)
 
@@ -157,10 +146,11 @@
 
 ;; Sets up exec-path-from shell
 ;; https://github.com/purcell/exec-path-from-shell
-(when (memq window-system '(mac ns))
+(when (memq window-system '(mac ns x))
   (exec-path-from-shell-initialize)
   (exec-path-from-shell-copy-envs
-   '("PATH")))
+   '("PATH"))
+  )
 
 (global-set-key (kbd "C-c i") 'counsel-imenu)
 
@@ -245,7 +235,7 @@
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(package-selected-packages
-   '(adoc-mode jdecomp darkroom yaml-mode counsel-projectile which-key ivy-rich rjsx-mode hl-todo ace-window avy git-gutter-fringe web-mode jarchive exec-path-from-shell s eglot hugsql-ghosts git-gutter company ripgrep flycheck use-package projectile multiple-cursors cider monokai-theme rainbow-delimiters clojure-mode ivy magit paredit)))
+   '(yasnippet adoc-mode jdecomp darkroom yaml-mode counsel-projectile which-key ivy-rich rjsx-mode hl-todo ace-window avy git-gutter-fringe web-mode jarchive exec-path-from-shell s eglot hugsql-ghosts git-gutter company ripgrep flycheck use-package projectile multiple-cursors cider monokai-theme rainbow-delimiters clojure-mode ivy magit paredit)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.

@@ -4,6 +4,7 @@
 (require 'eldoc)
 (require 'use-package)
 (require 'lsp-ui)
+(require 'lsp)
 
 (autoload 'penable-paredit-mode "paredit" "structural editting for lisps" t)
 (add-hook 'emacs-list-mode-hook #'enable-paredit-mode)
@@ -45,7 +46,11 @@
 	       clojurec-mode
 	       clojurescript-mode
 	       clojurex-mode))
-    (add-to-list 'lsp-language-id-configuration `(,m . "clojure"))))
+    (add-to-list 'lsp-language-id-configuration `(,m . "clojure")))
+   ;; (setq lsp-clojure-server-command '("/opt/homebrew/bin/clojure-lsp"))
+   )
+;; (setq lsp-typescript-npm '("/opt/homebrew/bin/npm"))
+
 
 (setq lsp-headerline-breadcrumb-enable t)
 (setq lsp-headerline-breadcrumb-enable-diagnostics nil)

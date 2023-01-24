@@ -13,3 +13,4 @@ projectile.cache
 projects
 workspace/
 sw.el
+.dap-breakpoints
