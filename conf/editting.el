@@ -35,7 +35,7 @@
 (tool-bar-mode -1)
 (blink-cursor-mode 0)
 (scroll-bar-mode -1)
-(global-linum-mode)
+(global-display-line-numbers-mode)
 
 ;; Clipboard improvements
 (setq
@@ -78,17 +78,6 @@
       (delete-region (point-at-bol) (point)))))
 
 (global-set-key [C-backspace] 'my-kill-back)
-;; Prefer vertical split
-;; (setq split-height-threshold nil)
-;; (setq split-width-threshold 80)
-
-;; spelling
-;; (dolist (hook '(text-mode-hook clojure-mode-hook))
-;;       (add-hook hook (lambda () (flyspell-mode 1))))
-;;     (dolist (hook '(change-log-mode-hook log-edit-mode-hook))
-;;       (add-hook hook (lambda () (flyspell-mode -1))))
-
-;; (setq flyspell-issue-message-flag nil)
 
 (defun toggle-frame-split ()
   (interactive)
@@ -118,7 +107,6 @@
 ;; I don't use the default binding of 'C-x 5', so use toggle-frame-split instead
 (global-set-key (kbd "C-x 5") 'toggle-frame-split)
 
-
 ;; avy
 (require 'avy)
 ;; (global-set-key (kbd "C-'") 'avy-goto-char-2)
@@ -139,7 +127,12 @@
 	'(("TODO"   . "#ffe700")
 	  ("todo"   . "#ffe700")
 	  ("FIXME"  . "#FF0000")
+          ("ask" . "#09e237")
 	  ("DEBUG"  . "#A020F0")
 	  ("GOTCHA" . "#FF4500")
-	  ("STUB"   . "#1E90FF")))
+	  ("STUB"   . "#1E90FF")
+	  ("stub"   . "#1E90FF")))
+
+(add-hook 'prog-mode-hook #'display-fill-column-indicator-mode)
+(setq-default fill-column 120)
 

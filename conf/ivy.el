@@ -1,3 +1,8 @@
+;;; Package -- Summary
+;;; Commentary:
+
+(require 'ivy)
+
 (ivy-mode 1)
 
 (setq ivy-use-virtual-buffers t)
@@ -17,3 +22,10 @@
 ;; swiper
 (global-set-key (kbd "C-s") 'swiper)
 (global-set-key (kbd "C-r") 'swiper)
+
+(require 'ivy-rich)
+(ivy-rich-mode 1)
+;; ???
+(setcdr (assq t ivy-format-functions-alist) #'ivy-format-function-line)
+
+

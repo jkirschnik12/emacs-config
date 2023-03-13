@@ -3,7 +3,13 @@
 
 (setq mc/cmds-to-run-for-all
       '(
+	cider-load-buffer
 	kill-region
+	paredit-delete-char
+	paredit-doublequote
+	paredit-forward-slurp-sexp
+	paredit-open-round
+	paredit-open-square
 	))
 
 (setq mc/cmds-to-run-once

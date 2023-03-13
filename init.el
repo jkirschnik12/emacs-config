@@ -1,29 +1,27 @@
-(require 'package)
+;; packages
 (add-to-list 'package-archives
              '("melpa" . "https://melpa.org/packages/") t)
 (add-to-list 'package-archives
              '("melpa-stable" . "http://stable.melpa.org/packages/") t)
-
 (package-initialize)
 
-;;Open new files in current emacs instance
+;; Start emacs server
 (require 'server)
 (if (and (fboundp 'server-running-p)
          (not (server-running-p)))
     (server-start))
 
-(setq mac-option-modifier 'meta)
-(setq mac-command-modifier 'control)
-(setq mac-control-modifier 'super)
+;; change modifier keys
+(setq mac-option-modifier 'super)
+(setq mac-command-modifier 'meta)
+(setq mac-control-modifier 'control)
 
-(require 'org)
+;; flycheck
+;; no more requires
+(setq-default flycheck-emacs-lisp-load-path 'inherit)
+;; disable unnecessary flycheck stuff in elisp
+(setq-default flycheck-disabled-checkers '(emacs-lisp-checkdoc))
 
-(add-hook 'org-mode-hook (lambda ()
-			   (visual-line-mode)
-			   (darkroom-mode)
-			   (linum-mode -1)))
-
-(add-hook 'after-init-hook 'toggle-frame-maximized)
 (defvar my-packages '(
 		      paredit
 		      magit
@@ -48,7 +46,6 @@
 		      exec-path-from-shell
 		      jarchive
 		      lsp-ui
-		      lsp-ivy
 		      git-gutter git-gutter-fringe
 		      avy
 		      web-mode
@@ -61,70 +58,34 @@
 		      web-mode
 		      counsel-projectile
 		      darkroom
-		      ace-window))
+		      ace-window
+		      typescript-mode))
 
 ;; Install all used packages
 (dolist (p my-packages)
   (when (not (package-installed-p p))
     (package-install p)))
 
+(add-hook 'after-init-hook 'toggle-frame-maximized)
 
-(require 'eshell)
-
+;; global bindings
 (global-set-key (kbd "C-x j") 'eshell)
 (global-set-key (kbd "C-x C-b") 'ibuffer)
 (require 'ibuf-ext)
 (add-to-list 'ibuffer-never-show-predicates "^\\*")
 
-(require 'lsp-java)
-(add-hook 'java-mode-hook #'lsp)
-
-;; just for eshell convenience
-(defalias 'ff 'find-file)
-(defalias 'de (lambda ()
-		(cd "~/code/dev-environment")))
-
-(defalias 'cl 'eshell/clear-scrollback)
-
-(defun disable-line-num ()
-  (linum-mode 0))
-
-(add-hook 'eshell-mode-hook #'disable-line-num)
 (which-key-mode)
 
 (add-hook 'darkroom-mode-hook #'(lambda ()
 				  ;; (my-buffer-face-mode-fixed)
 				  (turn-on-visual-line-mode)
 				  (linum-mode -1)))
-(require 'ivy-rich)
-(ivy-rich-mode 1)
-(setcdr (assq t ivy-format-functions-alist) #'ivy-format-function-line)
 
-;; Rainbow parens
-(require 'rainbow-delimiters)
-(add-hook 'prog-mode-hook 'rainbow-delimiters-mode)
-
-;; Theme
-(load-theme 'monokai t)
-
-;; flycheck
-(require 'flycheck-clj-kondo)
-(global-flycheck-mode)
-
-;; eldoc-mode
-(add-hook 'emacs-lisp-mode-hook 'turn-on-eldoc-mode)
-(add-hook 'lisp-interaction-mode-hook 'turn-on-eldoc-mode)
-(add-hook 'ielm-mode-hook 'turn-on-eldoc-mode)
-(add-hook 'cider-mode-hook 'eldoc-mode)
-
-;; company
-(require 'company)
-(add-hook 'after-init-hook 'global-company-mode)
-(setq company-selection-wrap-around t)
+(add-to-list 'custom-theme-load-path "~/.emacs.d/themes/")
 
 ;; visual bell
 (setq visible-bell 1)
-;; flash modeline instead of awful icon
+;; flash mode line instead of awful icon
 (setq ring-bell-function
       (lambda ()
         (let ((orig-fg (face-foreground 'mode-line)))
@@ -139,103 +100,50 @@
   (interactive)
   (find-file "~/.emacs.d/init.el"))
 
-(defun todo ()
-  "jump to todo list"
-  (interactive)
-  (find-file "~/notes/todo.org"))
-
-;; Sets up exec-path-from shell
-;; https://github.com/purcell/exec-path-from-shell
-(when (memq window-system '(mac ns x))
-  (exec-path-from-shell-initialize)
-  (exec-path-from-shell-copy-envs
-   '("PATH"))
-  )
-
-(global-set-key (kbd "C-c i") 'counsel-imenu)
-
-;; no company completion in eshell
-(setq company-global-modes '(not eshell-mode))
-
-;; yaml files
-(require 'yaml-mode)
-(add-to-list 'auto-mode-alist '("\\.yml\\'" . yaml-mode))
-
-;; switch to org
-
-(defun buffer-org ()
-  "Org buffer switcher."
-  (interactive)
-  (let ((org-buffers (mapcar #'buffer-name (cl-remove-if-not (lambda (b) (string-match-p "\.org$" (format "%s" b))) (buffer-list)))))
-    (if (length> org-buffers 0)
-	(if (length= org-buffers 1)
-	    (switch-to-buffer (car org-buffers))
-	  (switch-to-buffer (completing-read "Choose an org mode buffer: " org-buffers))))))
+;; ace
+(require 'ace-window)
+(setq aw-keys '(?j ?k ?l ?\; ?a ?s ?d ?f))
 
 (defun econf ()
   "Open Emacs config."
   (interactive)
   (let ((e-files (cl-remove-if-not (lambda (f)
-				     (string-match-p "^[a-zA-Z0-9]*\.el$" (format "%s" f))) (directory-files "~/.emacs.d"))))
-    (find-file (concat "~/.emacs.d/" (completing-read "Emacs config files: " e-files)))))
+				     (string-match-p "^[a-zA-Z0-9]*\.el$" (format "%s" f))) 
+                                   (directory-files "~/.emacs.d/conf"))))
+    (find-file (concat "~/.emacs.d/conf/" (completing-read "Emacs config files: " e-files)))))
 
-(defun today ()
-  "Open an entry for today org mode."
-  (interactive)
-  (let ((today (format-time-string "%Y-%m-%d"))
-	(dir "~/notes/daily/"))
-    (find-file (concat dir today ".org"))))
-
-(defun yesterday ()
-  "Open an entry for yesterday if exists org mode."
-  (interactive)
-  (let ((yesterday (format-time-string "%Y-%m-%d" (time-subtract (current-time) (days-to-time 1))))
-	(dir "~/notes/daily/"))
-    (find-file (concat dir yesterday ".org"))))
-
-(defun search-notes ()
-  "Search daily notes."
-  (interactive)
-  (let ((dir "~/notes/daily/"))
-    (counsel-rg "" dir)))
-
-(defun tmp ()
-  "T."
-  (interactive)
-  ;; todo list file types to choose from clojure, ts, java, sql
-  (counsel-projectile-rg "--type clojure"))
-
-;; Org mode magic
-(require 'org)
-(require 'ob-clojure)
-(require 'cider)
-(setq org-babel-clojure-backend 'cider)
-(setq org-confirm-babel-evaluate nil)
-
-;;uh
-
-(customize-set-variable 'jdecomp-decompiler-paths
-                        '((cfr . "~/cfr-0.152.jar")))
-
-(global-set-key (kbd "C-c b p") 'previous-buffer)
-(global-set-key (kbd "C-c b n") 'next-buffer)
+;; spellcheck
+(require 'ispell)
+(setq ispell-program-name "hunspell")
+(dolist (hook '(text-mode-hook))
+  (add-hook hook (lambda () (flyspell-mode 1))))
+(dolist (hook '(change-log-mode-hook log-edit-mode-hook))
+  (add-hook hook (lambda () (flyspell-mode -1))))
+(require 'flyspell)
+(setq flyspell-issue-message-flag nil)
+(global-set-key (kbd "<f8>") 'flyspell-buffer)
 
 ;; Loading other configs
-(load "~/.emacs.d/editting.el")
-(load "~/.emacs.d/lisp.el")
-(load "~/.emacs.d/ivy.el")
-(load "~/.emacs.d/projectile.el")
-(load "~/.emacs.d/sw.el")
-(load "~/.emacs.d/git.el")
-(load "~/.emacs.d/clojure.el")
+(load "~/.emacs.d/conf/editting.el")
+(load "~/.emacs.d/conf/prog.el")
+(load "~/.emacs.d/conf/ivy.el")
+(load "~/.emacs.d/conf/projectile.el")
+(load "~/.emacs.d/conf/sw.el")
+(load "~/.emacs.d/conf/git.el")
+(load "~/.emacs.d/conf/clojure.el")
+(load "~/.emacs.d/conf/text.el")
+(load "~/.emacs.d/conf/shell.el")
 
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
+ '(custom-enabled-themes '(sanityinc-tomorrow-night))
+ '(custom-safe-themes
+   '("82d2cac368ccdec2fcc7573f24c3f79654b78bf133096f9b40c20d97ec1d8016" "06f0b439b62164c6f8f84fdda32b62fb50b6d00e8b01c2208e55543a6337433a" "bb08c73af94ee74453c90422485b29e5643b73b05e8de029a6909af6a3fb3f58" "1b8d67b43ff1723960eb5e0cba512a2c7a2ad544ddb2533a90101fd1852b426e" "628278136f88aa1a151bb2d6c8a86bf2b7631fbea5f0f76cba2a0079cd910f7d" default))
  '(package-selected-packages
-   '(yasnippet adoc-mode jdecomp darkroom yaml-mode counsel-projectile which-key ivy-rich rjsx-mode hl-todo ace-window avy git-gutter-fringe web-mode jarchive exec-path-from-shell s eglot hugsql-ghosts git-gutter company ripgrep flycheck use-package projectile multiple-cursors cider monokai-theme rainbow-delimiters clojure-mode ivy magit paredit)))
+   '(color-theme-sanityinc-tomorrow zenburn-theme neotree typescript-mode yasnippet adoc-mode jdecomp darkroom yaml-mode counsel-projectile which-key ivy-rich rjsx-mode hl-todo ace-window avy git-gutter-fringe web-mode jarchive exec-path-from-shell s eglot hugsql-ghosts git-gutter company ripgrep flycheck use-package projectile multiple-cursors cider monokai-theme rainbow-delimiters clojure-mode ivy magit paredit)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
