@@ -122,6 +122,28 @@
 (require 'flyspell)
 (setq flyspell-issue-message-flag nil)
 (global-set-key (kbd "<f8>") 'flyspell-buffer)
+(global-set-key (kbd "<f9>") 'flyspell-region)
+
+;; flyspell toggle
+(defun flyspell-toggle ()
+  "Turn Flyspell on if it is off, or off if it is on.  When turning on, it uses 
+   `flyspell-on-for-buffer-type' so code-vs-text is handled appropriately."
+  (interactive)
+  (if (symbol-value flyspell-mode)
+      (progn 
+        (message "Flyspell off")
+        (flyspell-mode -1))
+    (progn
+      (message "Flyspell on")
+      (flyspell-mode))))
+
+(global-set-key (kbd "C-c f") 'flyspell-toggle)
+
+;; flyspell
+(add-hook 'prog-mode-hook (lambda ()
+                            (flyspell-prog-mode)))
+
+
 
 ;; Loading other configs
 (load "~/.emacs.d/conf/editting.el")

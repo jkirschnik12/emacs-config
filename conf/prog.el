@@ -6,7 +6,7 @@
 (require 'lsp-ui)
 (require 'lsp)
 
-(autoload 'penable-paredit-mode "paredit" "structural editting for lisps" t)
+(autoload 'penable-paredit-mode "paredit" "structural editing for lisps" t)
 (add-hook 'emacs-list-mode-hook #'enable-paredit-mode)
 (add-hook 'emacs-lisp-mode-hook       #'enable-paredit-mode)
 (add-hook 'eval-expression-minibuffer-setup-hook #'enable-paredit-mode)
@@ -18,7 +18,7 @@
 (add-hook 'cider-repl-mode-hook       #'enable-paredit-mode)
 (add-hook 'cider-repl-mode-hook       #'rainbow-delimiters-mode)
 
-;; swap ret and C-j
+;; swap return and C-j
 ;; (electric-indent-mode nil)
 
 
@@ -51,7 +51,6 @@
   ;; (setq lsp-clojure-server-command '("/opt/homebrew/bin/clojure-lsp"))
   )
 ;; (setq lsp-typescript-npm '("/opt/homebrew/bin/npm"))
-
 
 (setq lsp-headerline-breadcrumb-enable t)
 (setq lsp-headerline-breadcrumb-enable-diagnostics nil)
