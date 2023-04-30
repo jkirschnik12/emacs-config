@@ -22,44 +22,48 @@
 ;; disable unnecessary flycheck stuff in elisp
 (setq-default flycheck-disabled-checkers '(emacs-lisp-checkdoc))
 
+(global-set-key (kbd "C-x C-o") 'ace-window)
 (defvar my-packages '(
-		      paredit
-		      magit
-		      ivy
-		      counsel
-		      clojure-mode
-		      rainbow-delimiters
-		      monokai-theme
-		      cider
-		      multiple-cursors
-		      projectile
-		      use-package
-		      flycheck
-		      flycheck-clj-kondo
-		      ripgrep
-		      swiper
-		      lsp-mode
-		      s
-		      lsp-ivy
-		      company
-		      eglot
-		      exec-path-from-shell
-		      jarchive
-		      lsp-ui
-		      git-gutter git-gutter-fringe
-		      avy
-		      web-mode
-		      rjsx-mode
-		      ivy-rich
-		      which-key
-		      yaml-mode
-		      lsp-java
-		      hl-todo
-		      web-mode
-		      counsel-projectile
-		      darkroom
-		      ace-window
-		      typescript-mode))
+		              paredit
+		              magit
+		              ivy
+		              counsel
+		              clojure-mode
+		              rainbow-delimiters
+		              cider
+		              multiple-cursors
+		              projectile
+		              use-package
+		              flycheck
+		              flycheck-clj-kondo
+		              ripgrep
+		              swiper
+		              lsp-mode
+		              s
+		              lsp-ivy
+		              company
+		              eglot
+		              exec-path-from-shell
+		              jarchive
+		              lsp-ui
+		              git-gutter git-gutter-fringe
+		              avy
+		              rjsx-mode
+		              ivy-rich
+		              which-key
+		              yaml-mode
+		              lsp-java
+		              hl-todo
+		              web-mode
+		              counsel-projectile
+		              darkroom
+		              ace-window
+		              typescript-mode
+                      jet
+                      diminish))
+
+(require 'diminish)
+(setq datetime-timezone "America/Chicago")
 
 ;; Install all used packages
 (dolist (p my-packages)
@@ -77,9 +81,9 @@
 (which-key-mode)
 
 (add-hook 'darkroom-mode-hook #'(lambda ()
-				  ;; (my-buffer-face-mode-fixed)
-				  (turn-on-visual-line-mode)
-				  (linum-mode -1)))
+				                  ;; (my-buffer-face-mode-fixed)
+				                  (turn-on-visual-line-mode)
+				                  (linum-mode -1)))
 
 (add-to-list 'custom-theme-load-path "~/.emacs.d/themes/")
 
@@ -103,12 +107,13 @@
 ;; ace
 (require 'ace-window)
 (setq aw-keys '(?j ?k ?l ?\; ?a ?s ?d ?f))
+(global-set-key (kbd "M-`") 'ace-swap-window)
 
 (defun econf ()
   "Open Emacs config."
   (interactive)
   (let ((e-files (cl-remove-if-not (lambda (f)
-				     (string-match-p "^[a-zA-Z0-9]*\.el$" (format "%s" f))) 
+				                     (string-match-p "^[a-zA-Z0-9]*\.el$" (format "%s" f))) 
                                    (directory-files "~/.emacs.d/conf"))))
     (find-file (concat "~/.emacs.d/conf/" (completing-read "Emacs config files: " e-files)))))
 
@@ -121,8 +126,8 @@
   (add-hook hook (lambda () (flyspell-mode -1))))
 (require 'flyspell)
 (setq flyspell-issue-message-flag nil)
-(global-set-key (kbd "<f8>") 'flyspell-buffer)
-(global-set-key (kbd "<f9>") 'flyspell-region)
+(global-set-key (kbd "M-<f8>") 'flyspell-buffer)
+(global-set-key (kbd "<f8>") 'flyspell-region)
 
 ;; flyspell toggle
 (defun flyspell-toggle ()
@@ -144,7 +149,6 @@
                             (flyspell-prog-mode)))
 
 
-
 ;; Loading other configs
 (load "~/.emacs.d/conf/editting.el")
 (load "~/.emacs.d/conf/prog.el")
@@ -161,11 +165,13 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(custom-enabled-themes '(sanityinc-tomorrow-night))
+ '(custom-enabled-themes '(sanityinc-tomorrow-eighties))
  '(custom-safe-themes
-   '("82d2cac368ccdec2fcc7573f24c3f79654b78bf133096f9b40c20d97ec1d8016" "06f0b439b62164c6f8f84fdda32b62fb50b6d00e8b01c2208e55543a6337433a" "bb08c73af94ee74453c90422485b29e5643b73b05e8de029a6909af6a3fb3f58" "1b8d67b43ff1723960eb5e0cba512a2c7a2ad544ddb2533a90101fd1852b426e" "628278136f88aa1a151bb2d6c8a86bf2b7631fbea5f0f76cba2a0079cd910f7d" default))
+   '("51ec7bfa54adf5fff5d466248ea6431097f5a18224788d0bd7eb1257a4f7b773" "f5b6be56c9de9fd8bdd42e0c05fecb002dedb8f48a5f00e769370e4517dde0e8" "285d1bf306091644fb49993341e0ad8bafe57130d9981b680c1dbd974475c5c7" "57a29645c35ae5ce1660d5987d3da5869b048477a7801ce7ab57bfb25ce12d3e" "4c56af497ddf0e30f65a7232a8ee21b3d62a8c332c6b268c81e9ea99b11da0d3" "82d2cac368ccdec2fcc7573f24c3f79654b78bf133096f9b40c20d97ec1d8016" "06f0b439b62164c6f8f84fdda32b62fb50b6d00e8b01c2208e55543a6337433a" "bb08c73af94ee74453c90422485b29e5643b73b05e8de029a6909af6a3fb3f58" "1b8d67b43ff1723960eb5e0cba512a2c7a2ad544ddb2533a90101fd1852b426e" "628278136f88aa1a151bb2d6c8a86bf2b7631fbea5f0f76cba2a0079cd910f7d" default))
  '(package-selected-packages
-   '(color-theme-sanityinc-tomorrow zenburn-theme neotree typescript-mode yasnippet adoc-mode jdecomp darkroom yaml-mode counsel-projectile which-key ivy-rich rjsx-mode hl-todo ace-window avy git-gutter-fringe web-mode jarchive exec-path-from-shell s eglot hugsql-ghosts git-gutter company ripgrep flycheck use-package projectile multiple-cursors cider monokai-theme rainbow-delimiters clojure-mode ivy magit paredit)))
+   '(prettier-js solarized-theme diminish sideline jet color-theme-sanityinc-tomorrow zenburn-theme neotree typescript-mode yasnippet adoc-mode jdecomp darkroom yaml-mode counsel-projectile which-key ivy-rich rjsx-mode hl-todo ace-window avy git-gutter-fringe web-mode jarchive exec-path-from-shell s eglot hugsql-ghosts git-gutter company ripgrep flycheck use-package projectile multiple-cursors cider monokai-theme rainbow-delimiters clojure-mode ivy magit paredit))
+ '(tab-width 4)
+ '(warning-suppress-types '((emacs) (emacs))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.

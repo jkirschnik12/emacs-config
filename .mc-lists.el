@@ -3,15 +3,29 @@
 
 (setq mc/cmds-to-run-for-all
       '(
-	cider-load-buffer
-	kill-region
-	paredit-delete-char
-	paredit-doublequote
-	paredit-forward-slurp-sexp
-	paredit-open-round
-	paredit-open-square
-	))
+        cider-load-buffer
+        forward-sexp
+        kill-region
+        kill-sentence
+        kill-sexp
+        my-paredit-delete
+        org-beginning-of-line
+        org-ctrl-c-ctrl-c
+        org-delete-indentation
+        org-end-of-line
+        org-kill-line
+        org-self-insert-command
+        org-yank
+        paredit-delete-char
+        paredit-doublequote
+        paredit-forward-slurp-sexp
+        paredit-open-round
+        paredit-open-square
+        ))
 
 (setq mc/cmds-to-run-once
       '(
-	))
+        counsel-M-x
+        lsp-ui-doc--handle-mouse-movement
+        paredit-kill
+        ))

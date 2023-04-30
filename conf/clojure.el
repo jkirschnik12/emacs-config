@@ -17,3 +17,9 @@
 (define-key cider-mode-map (kbd "C-c c C-f") 'cider-format-buffer)
 
 (setq clojure-align-forms-automatically t)
+
+;; https://docs.cider.mx/cider/basics/up_and_running.html#universal-jack-in
+;; quick babashka repl
+(global-set-key (kbd "<f12>") (lambda ()
+                                (interactive)
+                                (cider-jack-in-universal 3)))

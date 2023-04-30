@@ -11,9 +11,9 @@
 ;;   "Make font size bigger when there's only one buffer open."
 ;;   (let ((wc (count-windows)))
 ;;     (if (or (= wc 1) (and (= wc 2) (or (active-minibuffer-window)
-;; 				       (cl-remove-if-not (lambda (w)
-;; 							   (string-match-p (regexp-quote "*which-key*") (format "%s" w))) (window-list-1)))))
-;; 	(set-face-attribute 'default nil :height 140)
+;;                     (cl-remove-if-not (lambda (w)
+;;                             (string-match-p (regexp-quote "*which-key*") (format "%s" w))) (window-list-1)))))
+;;  (set-face-attribute 'default nil :height 140)
 ;;       (set-face-attribute 'default nil :height 120))))
 
 ;; (add-hook 'window-configuration-change-hook
@@ -27,8 +27,12 @@
 (defun font-14 ()
   "Change font to height 14."
   (interactive)
-  (set-face-attribute 'default nil :height 140)
-  )
+  (set-face-attribute 'default nil :height 140))
+
+(defun font-16 ()
+  "Change font to height 14."
+  (interactive)
+  (set-face-attribute 'default nil :height 160))
 
 ;; UI improvements
 (menu-bar-mode -1)
@@ -44,8 +48,8 @@
  save-interprogram-paste-before-kill t
  mouse-yank-at-point t)
 
- ;; Highlight matching paren
- (show-paren-mode 1)
+;; Highlight matching paren
+(show-paren-mode 1)
 
 
 ;; Multiple cursor magic
@@ -54,7 +58,7 @@
 (global-set-key (kbd "C->") 'mc/mark-next-like-this)
 (global-set-key (kbd "C-<") 'mc/mark-previous-like-this)
 (global-set-key (kbd "C-c C-<") 'mc/mark-all-like-this)
-
+(global-set-key (kbd "<mouse-2>") 'mc/add-cursor-on-click)
 
 ;; Comments
 (global-set-key (kbd "C-M-;") 'comment-or-uncomment-region)
@@ -79,30 +83,40 @@
 
 (global-set-key [C-backspace] 'my-kill-back)
 
+(defun my-paredit-delete ()
+  "Intellij like delete where indentation is deleted when all chars from bol to cursor are blank."
+  (interactive)
+  (if (string-match "^\s*$" (buffer-substring (point-at-bol) (point)))
+      (delete-indentation)
+    (paredit-backward-delete)))
+
+(require 'paredit)
+(define-key paredit-mode-map (kbd "DEL") 'my-paredit-delete)
+
 (defun toggle-frame-split ()
   (interactive)
   (if (= (count-windows) 2)
       (let* ((this-win-buffer (window-buffer))
-	     (next-win-buffer (window-buffer (next-window)))
-	     (this-win-edges (window-edges (selected-window)))
-	     (next-win-edges (window-edges (next-window)))
-	     (this-win-2nd (not (and (<= (car this-win-edges)
-					 (car next-win-edges))
-				     (<= (cadr this-win-edges)
-					 (cadr next-win-edges)))))
-	     (splitter
-	      (if (= (car this-win-edges)
-		     (car (window-edges (next-window))))
-		  'split-window-horizontally
-		'split-window-vertically)))
-	(delete-other-windows)
-	(let ((first-win (selected-window)))
-	  (funcall splitter)
-	  (if this-win-2nd (other-window 1))
-	  (set-window-buffer (selected-window) this-win-buffer)
-	  (set-window-buffer (next-window) next-win-buffer)
-	  (select-window first-win)
-	  (if this-win-2nd (other-window 1))))))
+             (next-win-buffer (window-buffer (next-window)))
+             (this-win-edges (window-edges (selected-window)))
+             (next-win-edges (window-edges (next-window)))
+             (this-win-2nd (not (and (<= (car this-win-edges)
+                                         (car next-win-edges))
+                                     (<= (cadr this-win-edges)
+                                         (cadr next-win-edges)))))
+             (splitter
+              (if (= (car this-win-edges)
+                     (car (window-edges (next-window))))
+                  'split-window-horizontally
+                'split-window-vertically)))
+        (delete-other-windows)
+        (let ((first-win (selected-window)))
+          (funcall splitter)
+          (if this-win-2nd (other-window 1))
+          (set-window-buffer (selected-window) this-win-buffer)
+          (set-window-buffer (next-window) next-win-buffer)
+          (select-window first-win)
+          (if this-win-2nd (other-window 1))))))
 
 ;; I don't use the default binding of 'C-x 5', so use toggle-frame-split instead
 (global-set-key (kbd "C-x 5") 'toggle-frame-split)
@@ -124,15 +138,16 @@
 (define-key hl-todo-mode-map (kbd "C-c ; n") 'hl-todo-next)
 
 (setq hl-todo-keyword-faces
-	'(("TODO"   . "#ffe700")
-	  ("todo"   . "#ffe700")
-	  ("FIXME"  . "#FF0000")
-          ("ask" . "#09e237")
-	  ("DEBUG"  . "#A020F0")
-	  ("GOTCHA" . "#FF4500")
-	  ("STUB"   . "#1E90FF")
-	  ("stub"   . "#1E90FF")))
+      '(("TODO"   . "#ffe700")
+        ("todo"   . "#ffe700")
+        ("FIXME"  . "#FF0000")
+        ("ask" . "#09e237")
+        ("DEBUG"  . "#A020F0")
+        ("GOTCHA" . "#FF4500")
+        ("STUB"   . "#1E90FF")
+        ("stub"   . "#1E90FF")))
 
 (add-hook 'prog-mode-hook #'display-fill-column-indicator-mode)
 (setq-default fill-column 120)
 
+(setq tab-width 4)

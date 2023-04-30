@@ -7,9 +7,7 @@
 (require 'lsp)
 
 (autoload 'penable-paredit-mode "paredit" "structural editing for lisps" t)
-(add-hook 'emacs-list-mode-hook #'enable-paredit-mode)
 (add-hook 'emacs-lisp-mode-hook       #'enable-paredit-mode)
-(add-hook 'eval-expression-minibuffer-setup-hook #'enable-paredit-mode)
 (add-hook 'ielm-mode-hook             #'enable-paredit-mode)
 (add-hook 'lisp-mode-hook             #'enable-paredit-mode)
 (add-hook 'lisp-interaction-mode-hook #'enable-paredit-mode)
@@ -27,7 +25,8 @@
   :ensure t
   :hook ((clojure-mode . lsp)
 	 (clojurec-mode . lsp)
-	 (clojurescript-mode . lsp))
+	 (clojurescript-mode . lsp)
+     (typescript-mode . lsp))
   :config
   (define-key lsp-mode-map (kbd "C-c l") lsp-command-map)
   (define-key lsp-mode-map (kbd "C-c l f") 'lsp-format-region)
@@ -47,10 +46,7 @@
 	       clojurec-mode
 	       clojurescript-mode
 	       clojurex-mode))
-    (add-to-list 'lsp-language-id-configuration `(,m . "clojure")))
-  ;; (setq lsp-clojure-server-command '("/opt/homebrew/bin/clojure-lsp"))
-  )
-;; (setq lsp-typescript-npm '("/opt/homebrew/bin/npm"))
+    (add-to-list 'lsp-language-id-configuration `(,m . "clojure"))))
 
 (setq lsp-headerline-breadcrumb-enable t)
 (setq lsp-headerline-breadcrumb-enable-diagnostics nil)
@@ -82,8 +78,8 @@
 ;; lowering precedence
 (setq cider-xref-fn-depth 90)
 (define-key cider-repl-mode-map (kbd "C-c C-o") 'cider-repl-clear-buffer)
-(define-key cider-mode-map (kbd "C-c C-o") (lambda ()
-					     (cider-repl-clear-buffer)))
+;; (define-key cider-mode-map (kbd "C-c C-o") (lambda ()
+					                         ;; (cider-repl-clear-output)))
 (setq cider-repl-display-help-banner nil)
 ;; (setq tab-always-indent 'complete)
 
@@ -102,6 +98,9 @@
 ;; yaml files
 (require 'yaml-mode)
 (add-to-list 'auto-mode-alist '("\\.yml\\'" . yaml-mode))
+
+;; templates
+(add-to-list 'auto-mode-alist '("\\.md.template\\'" . markdown-mode))
 
 ;; flycheck
 (require 'flycheck-clj-kondo)

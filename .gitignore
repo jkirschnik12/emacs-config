@@ -14,3 +14,7 @@ projects
 workspace/
 sw.el
 .dap-breakpoints
+games/
+.cache/
+url/
+logview-cache.extmap
