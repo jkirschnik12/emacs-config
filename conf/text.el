@@ -28,14 +28,20 @@
   (let ((dir "~/notes/daily/"))
     (counsel-rg "" dir)))
 
+(defun guild ()
+  "Open clojure guild notes."
+  (interactive)
+  (let ((guild-files (directory-files "~/notes/guild/")))
+    (find-file (concat "~/notes/guild/" (completing-read "Guild notes: " guild-files)))))
+
 (defun buffer-org ()
   "Org buffer switcher."
   (interactive)
   (let ((org-buffers (mapcar #'buffer-name (cl-remove-if-not (lambda (b) (string-match-p "\.org$" (format "%s" b))) (buffer-list)))))
     (if (length> org-buffers 0)
-	(if (length= org-buffers 1)
-	    (switch-to-buffer (car org-buffers))
-	  (switch-to-buffer (completing-read "Choose an org mode buffer: " org-buffers))))))
+	    (if (length= org-buffers 1)
+	        (switch-to-buffer (car org-buffers))
+	      (switch-to-buffer (completing-read "Choose an org mode buffer: " org-buffers))))))
 
 (defun todo ()
   "Jump to todo list."
@@ -47,3 +53,11 @@
 			   (visual-line-mode)
 			   (darkroom-mode)
 			   (display-line-numbers-mode 0)))
+
+(add-hook 'xwidget-webkit-mode-hook (lambda ()
+                                      (display-line-numbers-mode 0)))
+
+(defun clerk-open ()
+  "Opens clerk in xwidget."
+  (interactive)
+  (xwidget-webkit-browse-url "http://localhost:7777"))

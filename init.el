@@ -12,9 +12,9 @@
     (server-start))
 
 ;; change modifier keys
-(setq mac-option-modifier 'super)
-(setq mac-command-modifier 'meta)
-(setq mac-control-modifier 'control)
+(setq mac-option-modifier 'meta)
+(setq mac-command-modifier 'control)
+(setq mac-control-modifier 'super)
 
 ;; flycheck
 ;; no more requires
@@ -23,47 +23,44 @@
 (setq-default flycheck-disabled-checkers '(emacs-lisp-checkdoc))
 
 (global-set-key (kbd "C-x C-o") 'ace-window)
-(defvar my-packages '(
-		              paredit
-		              magit
-		              ivy
-		              counsel
-		              clojure-mode
-		              rainbow-delimiters
-		              cider
-		              multiple-cursors
-		              projectile
-		              use-package
-		              flycheck
-		              flycheck-clj-kondo
-		              ripgrep
-		              swiper
-		              lsp-mode
-		              s
-		              lsp-ivy
-		              company
-		              eglot
-		              exec-path-from-shell
-		              jarchive
-		              lsp-ui
-		              git-gutter git-gutter-fringe
-		              avy
-		              rjsx-mode
-		              ivy-rich
-		              which-key
-		              yaml-mode
-		              lsp-java
-		              hl-todo
-		              web-mode
-		              counsel-projectile
-		              darkroom
-		              ace-window
-		              typescript-mode
-                      jet
-                      diminish))
-
-(require 'diminish)
-(setq datetime-timezone "America/Chicago")
+(defvar my-packages
+  '(paredit
+	magit
+	ivy
+	counsel
+	clojure-mode
+	rainbow-delimiters
+	cider
+	multiple-cursors
+	projectile
+	use-package
+	flycheck
+	flycheck-clj-kondo
+	ripgrep
+	swiper
+	lsp-mode
+	s
+	lsp-ivy
+	company
+	eglot
+	exec-path-from-shell
+	jarchive
+	lsp-ui
+	git-gutter git-gutter-fringe
+	avy
+	rjsx-mode
+	ivy-rich
+	which-key
+	yaml-mode
+	lsp-java
+	hl-todo
+	web-mode
+	counsel-projectile
+	darkroom
+	ace-window
+    jet
+    spaceline
+    jdecomp))
 
 ;; Install all used packages
 (dolist (p my-packages)
@@ -83,7 +80,7 @@
 (add-hook 'darkroom-mode-hook #'(lambda ()
 				                  ;; (my-buffer-face-mode-fixed)
 				                  (turn-on-visual-line-mode)
-				                  (linum-mode -1)))
+                                  (display-line-numbers-mode 0)))
 
 (add-to-list 'custom-theme-load-path "~/.emacs.d/themes/")
 
@@ -160,16 +157,123 @@
 (load "~/.emacs.d/conf/text.el")
 (load "~/.emacs.d/conf/shell.el")
 
+(require 'diminish)
+
+(diminish 'git-gutter-mode)
+(diminish 'auto-revert-mode)
+(diminish 'projectile-mode)
+(diminish 'counsel-mode)
+(diminish 'company-mode)
+(diminish 'ivy-mode)
+(diminish 'paredit-mode)
+(diminish 'flycheck-mode)
+(diminish 'eldoc-mode)
+(diminish 'which-key-mode)
+
+(require 'spaceline-config)
+(spaceline-emacs-theme)
+(spaceline-toggle-buffer-encoding-off)
+(spaceline-toggle-buffer-encoding-abbrev-off)
+(spaceline-toggle-buffer-size-off)
+
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
+ '(connection-local-criteria-alist
+   '(((:application eshell)
+      eshell-connection-default-profile)
+     ((:application tramp :protocol "flatpak")
+      tramp-container-connection-local-default-flatpak-profile)
+     ((:application tramp :machine "localhost")
+      tramp-connection-local-darwin-ps-profile)
+     ((:application tramp :machine "jkirschnik-mbp.singlewire.lan")
+      tramp-connection-local-darwin-ps-profile)
+     ((:application tramp)
+      tramp-connection-local-default-system-profile tramp-connection-local-default-shell-profile)))
+ '(connection-local-profile-alist
+   '((eshell-connection-default-profile
+      (eshell-path-env-list))
+     (tramp-container-connection-local-default-flatpak-profile
+      (tramp-remote-path "/app/bin" tramp-default-remote-path "/bin" "/usr/bin" "/sbin" "/usr/sbin" "/usr/local/bin" "/usr/local/sbin" "/local/bin" "/local/freeware/bin" "/local/gnu/bin" "/usr/freeware/bin" "/usr/pkg/bin" "/usr/contrib/bin" "/opt/bin" "/opt/sbin" "/opt/local/bin"))
+     (tramp-connection-local-darwin-ps-profile
+      (tramp-process-attributes-ps-args "-acxww" "-o" "pid,uid,user,gid,comm=abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ" "-o" "state=abcde" "-o" "ppid,pgid,sess,tty,tpgid,minflt,majflt,time,pri,nice,vsz,rss,etime,pcpu,pmem,args")
+      (tramp-process-attributes-ps-format
+       (pid . number)
+       (euid . number)
+       (user . string)
+       (egid . number)
+       (comm . 52)
+       (state . 5)
+       (ppid . number)
+       (pgrp . number)
+       (sess . number)
+       (ttname . string)
+       (tpgid . number)
+       (minflt . number)
+       (majflt . number)
+       (time . tramp-ps-time)
+       (pri . number)
+       (nice . number)
+       (vsize . number)
+       (rss . number)
+       (etime . tramp-ps-time)
+       (pcpu . number)
+       (pmem . number)
+       (args)))
+     (tramp-connection-local-busybox-ps-profile
+      (tramp-process-attributes-ps-args "-o" "pid,user,group,comm=abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ" "-o" "stat=abcde" "-o" "ppid,pgid,tty,time,nice,etime,args")
+      (tramp-process-attributes-ps-format
+       (pid . number)
+       (user . string)
+       (group . string)
+       (comm . 52)
+       (state . 5)
+       (ppid . number)
+       (pgrp . number)
+       (ttname . string)
+       (time . tramp-ps-time)
+       (nice . number)
+       (etime . tramp-ps-time)
+       (args)))
+     (tramp-connection-local-bsd-ps-profile
+      (tramp-process-attributes-ps-args "-acxww" "-o" "pid,euid,user,egid,egroup,comm=abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ" "-o" "state,ppid,pgid,sid,tty,tpgid,minflt,majflt,time,pri,nice,vsz,rss,etimes,pcpu,pmem,args")
+      (tramp-process-attributes-ps-format
+       (pid . number)
+       (euid . number)
+       (user . string)
+       (egid . number)
+       (group . string)
+       (comm . 52)
+       (state . string)
+       (ppid . number)
+       (pgrp . number)
+       (sess . number)
+       (ttname . string)
+       (tpgid . number)
+       (minflt . number)
+       (majflt . number)
+       (time . tramp-ps-time)
+       (pri . number)
+       (nice . number)
+       (vsize . number)
+       (rss . number)
+       (etime . number)
+       (pcpu . number)
+       (pmem . number)
+       (args)))
+     (tramp-connection-local-default-shell-profile
+      (shell-file-name . "/bin/sh")
+      (shell-command-switch . "-c"))
+     (tramp-connection-local-default-system-profile
+      (path-separator . ":")
+      (null-device . "/dev/null"))))
  '(custom-enabled-themes '(sanityinc-tomorrow-eighties))
  '(custom-safe-themes
    '("51ec7bfa54adf5fff5d466248ea6431097f5a18224788d0bd7eb1257a4f7b773" "f5b6be56c9de9fd8bdd42e0c05fecb002dedb8f48a5f00e769370e4517dde0e8" "285d1bf306091644fb49993341e0ad8bafe57130d9981b680c1dbd974475c5c7" "57a29645c35ae5ce1660d5987d3da5869b048477a7801ce7ab57bfb25ce12d3e" "4c56af497ddf0e30f65a7232a8ee21b3d62a8c332c6b268c81e9ea99b11da0d3" "82d2cac368ccdec2fcc7573f24c3f79654b78bf133096f9b40c20d97ec1d8016" "06f0b439b62164c6f8f84fdda32b62fb50b6d00e8b01c2208e55543a6337433a" "bb08c73af94ee74453c90422485b29e5643b73b05e8de029a6909af6a3fb3f58" "1b8d67b43ff1723960eb5e0cba512a2c7a2ad544ddb2533a90101fd1852b426e" "628278136f88aa1a151bb2d6c8a86bf2b7631fbea5f0f76cba2a0079cd910f7d" default))
  '(package-selected-packages
-   '(prettier-js solarized-theme diminish sideline jet color-theme-sanityinc-tomorrow zenburn-theme neotree typescript-mode yasnippet adoc-mode jdecomp darkroom yaml-mode counsel-projectile which-key ivy-rich rjsx-mode hl-todo ace-window avy git-gutter-fringe web-mode jarchive exec-path-from-shell s eglot hugsql-ghosts git-gutter company ripgrep flycheck use-package projectile multiple-cursors cider monokai-theme rainbow-delimiters clojure-mode ivy magit paredit))
+   '(diminish spaceline-all-the-icons prettier-js zenburn-theme yasnippet jdecomp darkroom counsel-projectile ivy-rich rjsx-mode ace-window avy git-gutter-fringe jarchive s eglot hugsql-ghosts git-gutter ripgrep use-package monokai-theme rainbow-delimiters paredit))
  '(tab-width 4)
  '(warning-suppress-types '((emacs) (emacs))))
 (custom-set-faces

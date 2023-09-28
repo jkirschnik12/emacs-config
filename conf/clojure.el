@@ -16,6 +16,9 @@
 (define-key cider-mode-map (kbd "C-c c F") 'cider-format-region)
 (define-key cider-mode-map (kbd "C-c c C-f") 'cider-format-buffer)
 
+(define-key cider-repl-mode-map (kbd "<C-return>") 'paredit-RET)
+(define-key cider-repl-mode-map (kbd "RET") 'cider-repl-closing-return)
+
 (setq clojure-align-forms-automatically t)
 
 ;; https://docs.cider.mx/cider/basics/up_and_running.html#universal-jack-in

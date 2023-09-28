@@ -3,29 +3,44 @@
 
 (setq mc/cmds-to-run-for-all
       '(
+        backward-kill-sexp
         cider-load-buffer
         forward-sexp
+        indent-for-tab-command
         kill-region
         kill-sentence
         kill-sexp
+        mark-sexp
         my-paredit-delete
         org-beginning-of-line
         org-ctrl-c-ctrl-c
+        org-delete-char
         org-delete-indentation
         org-end-of-line
         org-kill-line
         org-self-insert-command
         org-yank
+        paredit-C-j
+        paredit-backward
         paredit-delete-char
         paredit-doublequote
+        paredit-forward
+        paredit-forward-barf-sexp
+        paredit-forward-kill-word
         paredit-forward-slurp-sexp
+        paredit-open-curly
         paredit-open-round
         paredit-open-square
+        paredit-splice-sexp
         ))
 
 (setq mc/cmds-to-run-once
       '(
+        ace-window
         counsel-M-x
+        handle-switch-frame
+        ivy-switch-buffer
         lsp-ui-doc--handle-mouse-movement
         paredit-kill
+        xref-find-definitions
         ))

@@ -5,6 +5,8 @@
 (require 'use-package)
 (require 'lsp-ui)
 (require 'lsp)
+(require 'lsp-headerline)
+(require 'web-mode)
 
 (autoload 'penable-paredit-mode "paredit" "structural editing for lisps" t)
 (add-hook 'emacs-lisp-mode-hook       #'enable-paredit-mode)
@@ -24,9 +26,9 @@
 (use-package lsp-mode
   :ensure t
   :hook ((clojure-mode . lsp)
-	 (clojurec-mode . lsp)
-	 (clojurescript-mode . lsp)
-     (typescript-mode . lsp))
+	     (clojurec-mode . lsp)
+	     (clojurescript-mode . lsp)
+         (web-mode . lsp))
   :config
   (define-key lsp-mode-map (kbd "C-c l") lsp-command-map)
   (define-key lsp-mode-map (kbd "C-c l f") 'lsp-format-region)
@@ -39,13 +41,16 @@
   (define-key lsp-mode-map (kbd "C-c l i") 'lsp-ui-imenu)
 
   ;; add paths to your local installation of project mgmt tools, like lein
-  (setenv "PATH" (concat
-		  "/opt/homebrew/bin" path-separator
-		  (getenv "PATH")))
+  (setenv "PATH"
+          (if (eq system-type 'darwin)
+              (concat
+		       "/opt/homebrew/bin" path-separator
+		       (getenv "PATH"))
+            (getenv "PATH")))
   (dolist (m '(clojure-mode
-	       clojurec-mode
-	       clojurescript-mode
-	       clojurex-mode))
+	           clojurec-mode
+	           clojurescript-mode
+	           clojurex-mode))
     (add-to-list 'lsp-language-id-configuration `(,m . "clojure"))))
 
 (setq lsp-headerline-breadcrumb-enable t)
@@ -62,9 +67,7 @@
   :commands lsp-ui-mode)
 
 (setq lsp-ui-doc-enable t)
-;; this got annoying
-(setq lsp-ui-doc-show-with-mouse nil)
-;; (setq lsp-ui-doc-show-with-cursor nil)
+(setq lsp-ui-doc-show-with-mouse t)
 
 ;; disable lsp formatting, _really_ slow
 (setq lsp-enable-indentation nil)
@@ -72,16 +75,14 @@
 
 ;;; Clojure (cider)
 (setq cider-save-file-on-load t)
-(setq cider-lein-command "/opt/homebrew/bin/lein")
+(when (eq system-type 'darwin)
+  (setq cider-lein-command "/opt/homebrew/bin/lein"))
 (setq cider-repl-buffer-size-limit 100000)
 (setq cider-use-xref t)
 ;; lowering precedence
 (setq cider-xref-fn-depth 90)
 (define-key cider-repl-mode-map (kbd "C-c C-o") 'cider-repl-clear-buffer)
-;; (define-key cider-mode-map (kbd "C-c C-o") (lambda ()
-					                         ;; (cider-repl-clear-output)))
 (setq cider-repl-display-help-banner nil)
-;; (setq tab-always-indent 'complete)
 
 (global-set-key (kbd "C-c C-r C-r") 'xref-find-references)
 (global-set-key [C-M-backspace] 'backward-kill-sexp)
@@ -92,8 +93,8 @@
 (setq-default indent-tabs-mode nil)
 
 ;; java
-(require 'lsp-java)
-(add-hook 'java-mode-hook #'lsp)
+;; (require 'lsp-java)
+;; (add-hook 'java-mode-hook #'lsp)
 
 ;; yaml files
 (require 'yaml-mode)
@@ -124,3 +125,7 @@
 
 ;; imenu
 (global-set-key (kbd "C-c i") 'counsel-imenu)
+
+;; ts
+(add-to-list 'auto-mode-alist '("\\.jsx?$" . web-mode))
+(add-to-list 'auto-mode-alist '("\\.tsx?$" . web-mode))
