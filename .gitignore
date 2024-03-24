@@ -18,3 +18,6 @@ games/
 .cache/
 url/
 logview-cache.extmap
+bookmarks
+request/
+tramp

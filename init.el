@@ -5,197 +5,503 @@
              '("melpa-stable" . "http://stable.melpa.org/packages/") t)
 (package-initialize)
 
-;; Start emacs server
-(require 'server)
-(if (and (fboundp 'server-running-p)
-         (not (server-running-p)))
-    (server-start))
 
-;; change modifier keys
-(setq mac-option-modifier 'meta)
-(setq mac-command-modifier 'control)
-(setq mac-control-modifier 'super)
-
-;; flycheck
-;; no more requires
-(setq-default flycheck-emacs-lisp-load-path 'inherit)
-;; disable unnecessary flycheck stuff in elisp
-(setq-default flycheck-disabled-checkers '(emacs-lisp-checkdoc))
-
-(global-set-key (kbd "C-x C-o") 'ace-window)
-(defvar my-packages
-  '(paredit
-	magit
-	ivy
-	counsel
-	clojure-mode
-	rainbow-delimiters
-	cider
-	multiple-cursors
-	projectile
-	use-package
-	flycheck
-	flycheck-clj-kondo
-	ripgrep
-	swiper
-	lsp-mode
-	s
-	lsp-ivy
-	company
-	eglot
-	exec-path-from-shell
-	jarchive
-	lsp-ui
-	git-gutter git-gutter-fringe
-	avy
-	rjsx-mode
-	ivy-rich
-	which-key
-	yaml-mode
-	lsp-java
-	hl-todo
-	web-mode
-	counsel-projectile
-	darkroom
-	ace-window
-    jet
-    spaceline
-    jdecomp))
-
-;; Install all used packages
-(dolist (p my-packages)
-  (when (not (package-installed-p p))
-    (package-install p)))
-
-(add-hook 'after-init-hook 'toggle-frame-maximized)
-
-;; global bindings
-(global-set-key (kbd "C-x j") 'eshell)
-(global-set-key (kbd "C-x C-b") 'ibuffer)
-(require 'ibuf-ext)
-(add-to-list 'ibuffer-never-show-predicates "^\\*")
-
-(which-key-mode)
-
-(add-hook 'darkroom-mode-hook #'(lambda ()
-				                  ;; (my-buffer-face-mode-fixed)
-				                  (turn-on-visual-line-mode)
-                                  (display-line-numbers-mode 0)))
-
-(add-to-list 'custom-theme-load-path "~/.emacs.d/themes/")
-
-;; visual bell
-(setq visible-bell 1)
-;; flash mode line instead of awful icon
-(setq ring-bell-function
-      (lambda ()
-        (let ((orig-fg (face-foreground 'mode-line)))
-          (set-face-foreground 'mode-line "#F2804F")
-          (run-with-idle-timer 0.1 nil
-                               (lambda (fg) (set-face-foreground 'mode-line fg))
-                               orig-fg))))
-
-;; open init file
-(defun init ()
-  "Jump to init.el file."
-  (interactive)
-  (find-file "~/.emacs.d/init.el"))
-
-;; ace
-(require 'ace-window)
-(setq aw-keys '(?j ?k ?l ?\; ?a ?s ?d ?f))
-(global-set-key (kbd "M-`") 'ace-swap-window)
-
-(defun econf ()
-  "Open Emacs config."
-  (interactive)
-  (let ((e-files (cl-remove-if-not (lambda (f)
-				                     (string-match-p "^[a-zA-Z0-9]*\.el$" (format "%s" f))) 
-                                   (directory-files "~/.emacs.d/conf"))))
-    (find-file (concat "~/.emacs.d/conf/" (completing-read "Emacs config files: " e-files)))))
-
-;; spellcheck
-(require 'ispell)
-(setq ispell-program-name "hunspell")
-(dolist (hook '(text-mode-hook))
-  (add-hook hook (lambda () (flyspell-mode 1))))
-(dolist (hook '(change-log-mode-hook log-edit-mode-hook))
-  (add-hook hook (lambda () (flyspell-mode -1))))
-(require 'flyspell)
-(setq flyspell-issue-message-flag nil)
-(global-set-key (kbd "M-<f8>") 'flyspell-buffer)
-(global-set-key (kbd "<f8>") 'flyspell-region)
-
-;; flyspell toggle
-(defun flyspell-toggle ()
-  "Turn Flyspell on if it is off, or off if it is on.  When turning on, it uses 
-   `flyspell-on-for-buffer-type' so code-vs-text is handled appropriately."
-  (interactive)
-  (if (symbol-value flyspell-mode)
-      (progn 
-        (message "Flyspell off")
-        (flyspell-mode -1))
-    (progn
-      (message "Flyspell on")
-      (flyspell-mode))))
-
-(global-set-key (kbd "C-c f") 'flyspell-toggle)
-
-;; flyspell
-(add-hook 'prog-mode-hook (lambda ()
-                            (flyspell-prog-mode)))
-
-
-;; Loading other configs
-(load "~/.emacs.d/conf/editting.el")
-(load "~/.emacs.d/conf/prog.el")
-(load "~/.emacs.d/conf/ivy.el")
-(load "~/.emacs.d/conf/projectile.el")
-(load "~/.emacs.d/conf/sw.el")
-(load "~/.emacs.d/conf/git.el")
-(load "~/.emacs.d/conf/clojure.el")
-(load "~/.emacs.d/conf/text.el")
-(load "~/.emacs.d/conf/shell.el")
+;; This is only needed once, near the top of the file
+(eval-when-compile
+  (unless (package-installed-p 'use-package)
+    (package-refresh-contents)
+    (package-install 'use-package))
+  (require 'use-package)
+  (setq use-package-always-ensure t))
 
 (require 'diminish)
+(require 'bind-key) 
 
-(diminish 'git-gutter-mode)
-(diminish 'auto-revert-mode)
-(diminish 'projectile-mode)
-(diminish 'counsel-mode)
-(diminish 'company-mode)
-(diminish 'ivy-mode)
-(diminish 'paredit-mode)
-(diminish 'flycheck-mode)
-(diminish 'eldoc-mode)
-(diminish 'which-key-mode)
+;; Start emacs server
+(use-package server
+  :config (if (and (fboundp 'server-running-p)
+                   (not (server-running-p)))
+              (server-start)))
 
-(require 'spaceline-config)
-(spaceline-emacs-theme)
-(spaceline-toggle-buffer-encoding-off)
-(spaceline-toggle-buffer-encoding-abbrev-off)
-(spaceline-toggle-buffer-size-off)
+;; mac modifiers
+(when (eq system-type 'darwin)
+  (setq mac-option-modifier 'meta
+        mac-command-modifier 'control
+        mac-control-modifier 'super))
 
+;; etc keybindings and settings
+(global-set-key (kbd "C-c C-r C-r") 'xref-find-references)
+(global-set-key [C-M-backspace] 'backward-kill-sexp)
+(global-set-key (kbd "s-i") 'vc-msg-show)
+(global-set-key (kbd "C-x j") 'eshell)
+
+;; performance for lsp
+(setq read-process-output-max (* 1024 1024))
+(setq gc-cons-threshold #x40000000)
+(add-function :after
+              after-focus-change-function
+              (lambda () (unless (frame-focus-state)
+                           (garbage-collect))))
+
+
+
+(setq-default indent-tabs-mode nil)
+
+(use-package flycheck
+  :config
+  (setq-default flycheck-emacs-lisp-load-path 'inherit)
+  ;; disable unnecessary flycheck stuff in elisp
+  (setq-default flycheck-disabled-checkers '(emacs-lisp-checkdoc))
+  (global-flycheck-mode)
+  (use-package flycheck-clj-kondo))
+
+(use-package which-key
+  :diminish which-key-mode
+  
+  :config
+  (which-key-mode))
+
+(use-package ace-window
+  :config
+  (setq aw-keys '(?j ?k ?l ?\; ?a ?s ?d ?f))
+  :bind
+  (("M-`" . ace-swap-window)
+   ("C-x C-o" . ace-window)
+   ("C-x o" . ace-window)))
+
+(use-package lsp-mode
+  :defines (lsp-headerline-breadcrumb-enable-diagnostics lsp-headerline-breadcrumb-segments)
+
+  :init
+  (setq lsp-keymap-prefix "C-c l")
+  
+  :hook
+  ((clojure-mode . lsp)
+   (clojurec-mode . lsp)
+   (clojurescript-mode . lsp)
+   (typescript-mode . lsp))
+  
+  :bind
+  (:map lsp-mode-map
+        ("C-c l f" . lsp-format-region)
+        ("C-c l F" . lsp-format-buffer)
+        ("C-c l r" . lsp-rename)
+        ("C-c l o" . lsp-organize-imports)
+        ("C-c l a" . lsp-execute-code-action))
+
+  :init
+  (setenv "LSP_USE_PLISTS" "true")
+  
+  :config 
+  (setq lsp-headerline-breadcrumb-enable t)
+  (setq lsp-lens-enable nil)
+  (setq lsp-enable-on-type-formatting nil)
+  (setq lsp-modeline-diagnostics-enable nil)
+  (setq lsp-use-plists t)
+  (setq lsp-enable-indentation nil)
+  (setq lsp-enable-on-type-formatting nil)
+  ;; add paths to your local installation of project mgmt tools, like lein
+  (setenv "PATH"
+          (if (eq system-type 'darwin)
+              (concat
+	       "/opt/homebrew/bin" path-separator
+	       (getenv "PATH"))
+            (getenv "PATH")))
+  (dolist (m '(clojure-mode
+	       clojurec-mode
+	       clojurescript-mode
+	       clojurex-mode))
+    (add-to-list 'lsp-language-id-configuration `(,m . "clojure")))
+  (setq lsp-headerline-breadcrumb-enable-diagnostics nil)
+  (setq lsp-headerline-breadcrumb-segments '(project file symbols)))
+
+(use-package lsp-ui
+  :ensure t
+  :commands lsp-ui-mode
+  :bind
+  (:map lsp-ui-mode-map
+        ("C-c l d" . lsp-ui-doc-glance)
+        ("C-c l p" . lsp-ui-peek-find-references)
+        ("C-c l i" . lsp-ui-imenu))
+  :config
+  (setf lsp-ui-sideline-show-code-actions nil)
+  (setq lsp-ui-doc-enable t)
+  (setq lsp-ui-doc-show-with-mouse t))
+
+(use-package paredit
+  :diminish paredit-mode
+  :config
+  (defun my-paredit-delete ()
+    "Intellij like delete where indentation is deleted when all chars 
+     from bol to cursor are blank."
+    (interactive)
+    (if (string-match "^\s*$" (buffer-substring (pos-bol) (point)))
+        (delete-indentation)
+      (paredit-backward-delete)))
+  :bind
+  (:map paredit-mode-map
+        ("DEL" . my-paredit-delete))
+  :hook
+  ((emacs-lisp-mode . enable-paredit-mode)
+   (ielm-mode . enable-paredit-mode)
+   (lisp-mode . enable-paredit-mode)
+   (lisp-interaction-mode . enable-paredit-mode)
+   (scheme-mode . enable-paredit-mode)
+   (clojure-mode . enable-paredit-mode)
+   (cider-repl-mode . enable-paredit-mode)))
+
+(use-package cider
+  :functions (cider-interactive-eval
+              cirder-current-repl
+              cider-insert-eval-handler)
+  :config
+  (setq cider-save-file-on-load t)
+  (when (eq system-type 'darwin)
+    (setq cider-lein-command "/opt/homebrew/bin/lein"))
+  (setq cider-repl-buffer-size-limit 100000)
+  (setq cider-use-xref t)
+  (setq cider-auto-select-error-buffer nil)
+  (setq cider-auto-select-test-report-buffer nil)
+  (setq cider-xref-fn-depth 90)
+  (setq cider-repl-display-help-banner nil)
+  (setq cider-interactive-eval-output-destination 'repl-buffer)
+  (defun clerk-show ()
+    "Open file in clerk."
+    (interactive)
+    (when-let
+        ((filename
+          (buffer-file-name)))
+      (save-buffer)
+      (cider-interactive-eval
+       (concat "(nextjournal.clerk/show! \"" filename "\")"))))
+
+  (defun clj-reload ()
+    "Performs clojure reload."
+    (interactive)
+    ;; (cider-load-buffer)
+    (let ((expr "(do
+                 (require '[clj-reload.core :as reload])
+                 (reload/reload)
+                 (println \"FIN\"))"))
+      (cider-interactive-eval expr
+                              (cider-insert-eval-handler (cider-current-repl))
+                              nil
+                              (cider--nrepl-print-request-map 120))))
+  :bind
+  (("<f12>" . (lambda () (interactive) (cider-jack-in-universal 3)))
+   (:map cider-mode-map
+         ("<M-return>" . clerk-show)
+         ("C-c C-l" . clj-reload))
+   (:map cider-repl-mode-map
+         ("C-c C-o" . cider-repl-clear-buffer)
+         ("<C-return>" . paredit-RET)
+         ("RET" . cider-repl-closing-return))))
+
+(use-package clojure-mode
+  :config
+  (setq clojure-align-forms-automatically t))
+
+(use-package eldoc
+  :diminish eldoc-mode
+  :config
+  (eldoc-add-command
+   'paredit-backward-delete
+   'paredit-close-round)
+  :hook
+  ((emacs-lisp-mode . turn-on-eldoc-mode)
+   (lisp-interaction-mode . turn-on-eldoc-mode)
+   (ielm-mode . turn-on-eldoc-mode)
+   (cider-mode . turn-on-eldoc-mode)))
+
+(use-package jarchive
+  :config
+  (jarchive-mode))
+
+(use-package yaml-mode
+  :config
+  (add-to-list 'auto-mode-alist '("\\.yml\\'" . yaml-mode))
+  ;; templates
+  (add-to-list 'auto-mode-alist '("\\.md.template\\'" . markdown-mode)))
+
+(use-package company
+  :hook
+  (after-init . global-company-mode)
+  :bind
+  (:map company-active-map
+        ("M-/" . company-complete))
+  :config
+  (setq company-selection-wrap-around t)
+  (setq company-global-modes '(not eshell-mode org-mode)))
+
+(use-package rainbow-delimiters
+  :hook
+  (prog-mode . rainbow-delimiters-mode))
+
+(use-package counsel
+  :diminish counsel-mode
+  :bind
+  (("C-c i" . counsel-imenu)
+   ("M-x" . counsel-M-x)
+   ("C-c k" . counsel-rg)))
+
+(use-package sqlformat
+  :requires sql
+  :defines sql-mode-map
+  :config
+  (setq sqlformat-command 'pgformatter)
+  ;; placeholder thing "-p'\B:[\w-]*/gm'"
+  (setq sqlformat-args '("-s2" "-g" "-w120"))
+  :bind
+  (:map sql-mode-map
+        ("C-c l f" . sqlformat)
+        ("C-c l F" . sqlformat-buffer)))
+
+(use-package multiple-cursors
+  :bind
+  (("C-S-c C-S-c" . mc/edit-lines)
+   ("C->" . mc/mark-next-like-this)
+   ("C-<" . mc/mark-previous-like-this)
+   ("C-c C-<" . mc/mark-all-like-this)
+   ("<mouse-2>" . mc/add-cursor-on-click)))
+
+(use-package avy
+  :config
+  (setq avy-all-windows nil)
+  :bind
+  (("M-g l" . avy-goto-line)
+   ("C-'" . avy-goto-word-1)))
+
+(use-package hl-todo
+  :config
+  (global-hl-todo-mode)
+  (setq hl-todo-keyword-faces
+        '(("TODO"   . "#ffe700")
+          ("todo"   . "#ffe700")
+          ("FIXME"  . "#FF0000")
+          ("ask" . "#09e237")
+          ("DEBUG"  . "#A020F0")
+          ("GOTCHA" . "#FF4500")
+          ("STUB"   . "#1E90FF")
+          ("stub"   . "#1E90FF")))
+  :bind
+  (:map hl-todo-mode-map
+        ("C-c ; p" . hl-todo-previous)
+        ("C-c ; n" . hl-todo-next)))
+
+(use-package git-gutter
+  :diminish git-gutter-mode
+  :config
+  (global-git-gutter-mode +1)
+  (defun my-next-git-gutter-diff (arg)
+    (interactive "p")
+    (git-gutter:next-hunk arg)
+    (recenter))
+  (defun my-prev-git-gutter-diff (arg)
+    (interactive "p")
+    (git-gutter:previous-hunk arg)
+    (recenter))
+  :bind
+  (("C-M-3" . my-next-git-gutter-diff)
+   ("C-M-2" . my-prev-git-gutter-diff)
+   ("C-c g d" . git-gutter:popup-hunk)
+   ("C-c g r" . git-gutter:revert-hunk)
+   ("C-c g SPC" . git-gutter:mark-hunk)))
+
+(use-package git-gutter-fringe
+  :config
+  (define-fringe-bitmap 'git-gutter-fr:added [224] nil nil '(center repeated))
+  (define-fringe-bitmap 'git-gutter-fr:modified [224] nil nil '(center repeated))
+  (define-fringe-bitmap 'git-gutter-fr:deleted [128 192 224 240] nil nil 'bottom))
+
+(use-package autorevert
+  :ensure nil
+  :diminish auto-revert-mode)
+
+(use-package ivy
+  :diminish ivy-mode 
+  :config
+  (ivy-mode 1)
+  (setq ivy-use-virtual-buffers t)
+  (setq ivy-count-format "(%d/%d) ")
+  (setq ivy-height 10)
+  (setq ivy-wrap t)
+  (setq ivy-re-builders-alist '((t . ivy--regex-ignore-order)))
+  (add-to-list 'ivy-ignore-buffers "\\*Messages\\*")
+  (add-to-list 'ivy-ignore-buffers "\\*cider-test-report\\*")
+  (add-to-list 'ivy-ignore-buffers "\\*Help\\*")
+  (add-to-list 'ivy-ignore-buffers "\\*clojure-lsp\\*")
+  (add-to-list 'ivy-ignore-buffers "\\*clojure-lsp::stderr\\*")
+  (add-to-list 'ivy-ignore-buffers "\\*lsp-log\\*")
+  (add-to-list 'ivy-ignore-buffers "\\*scratch\\*")
+  ;; idk what this does
+  (setcdr (assq t ivy-format-functions-alist) 'ivy-format-function-line)
+  (setq ivy-re-builders-alist
+        '((read-file-name-internal . ivy--regex-fuzzy)
+          (t . ivy--regex-plus)))
+  (defun ivy-switch-buffer-all ()
+    (interactive)
+    (let ((ivy-ignore-buffers '()))
+      (ivy-switch-buffer)))
+  :bind
+  (("C-x b" . ivy-switch-buffer)
+   ("C-x B" . ivy-switch-buffer-all)
+   ("C-c v" . ivy-push-view)
+   ("C-c V" . ivy-pop-view)))
+
+(use-package ivy-rich
+  :config
+  (ivy-rich-mode 1))
+
+(use-package swiper
+  :bind
+  (("C-s" . swiper)
+   ("C-r" . swiper)))
+
+(use-package counsel-projectile)
+
+(use-package recentf
+  :config
+  (recentf-mode 1)
+  (setq recentf-save-file (concat user-emacs-directory ".recentf"))
+  )
+
+(use-package projectile
+  :diminish projectile-mode
+  :config
+  (projectile-mode +1)
+  (setq projectile-completion-system 'ivy)
+  (setq projectile-sort-order 'recentf)
+  (setq projectile-create-missing-test-files t)
+  :bind
+  (:map projectile-mode-map
+        ("C-c p" . projectile-command-map)
+        ("C-c p s" . counsel-projectile-rg)))
+
+(use-package exec-path-from-shell
+  :config
+  (add-to-list 'exec-path-from-shell-variables "LSP_USE_PLISTS")
+  (when (memq window-system '(mac ns x))
+    (exec-path-from-shell-initialize)))
+
+(use-package eshell
+  :ensure nil
+  :config
+  (defalias 'ff 'find-file)
+  (defalias 'ms 'magit-status)
+  (defalias 'cl 'eshell/clear-scrollback)
+  (when (memq window-system '(mac ns x))
+    (add-to-list 'exec-path "/opt/homebrew/bin/")
+    (add-to-list 'exec-path "/usr/bin/")
+    (defalias 'de (lambda ()
+		    (cd "~/code/dev-environment")))
+    (defalias 'aw (lambda ()
+		    (cd "~/code/dev-environment/admin-webapp")))
+    (defalias 'ci (lambda ()
+		    (cd "~/code/dev-environment/cirrus-rest-api")))
+    (setenv "DEV_ENVIRONMENT_ROOT" "/Users/joe.kirschnik/code/dev-environment")
+    (add-hook 'eshell-mode-hook (lambda ()
+			          (eshell/addpath "/opt/homebrew/bin/")
+                                  (eshell/addpath "/usr/bin/")))))
+
+(use-package org-pomodoro
+  :config
+  (setq org-pomodoro-play-sounds nil)
+  (setq org-pomodoro-manual-break t)
+
+  :hook
+  ((org-pomodoro-finished . (lambda ()
+                              (raise-frame (selected-frame))
+                              (momentary-string-display "Pomodoro Completed!" (point))))
+
+   (org-pomodoro-overtime . (lambda ()
+                              (raise-frame (selected-frame))
+                              (momentary-string-display "Overtime started!" (point))))
+
+   (org-pomodoro-short-break-finished . (lambda ()
+                                          (raise-frame (selected-frame))
+                                          (momentary-string-display "Short Break Completed!" (point))))
+
+   (org-pomodoro-long-break-finished . (lambda ()
+                                         (raise-frame (selected-frame))
+                                         (momentary-string-display "Long Break Completed!" (point))))))
+
+(use-package which-key
+  :config
+  (which-key-mode))
+
+(use-package org
+  :requires (ob-clojure cider)
+  :defines org-babel-clojure-backend
+  :config
+  (setq org-babel-clojure-backend 'cider)
+  (setq org-confirm-babel-evaluate nil)
+  :hook
+  (org-mode . (lambda ()
+		(visual-line-mode)
+		(darkroom-mode)
+		(display-line-numbers-mode 0))))
+
+(use-package color-theme-sanityinc-tomorrow
+  :config
+  (load-theme 'sanityinc-tomorrow-eighties t))
+
+(use-package emojify
+  :hook (after-init . global-emojify-mode))
+
+(use-package magit)
+(use-package s)
+(use-package lsp-ivy)
+(use-package darkroom)
+(use-package jet)
+(use-package jdecomp)
+(use-package dap-mode)
+
+(load "~/.emacs.d/functions.el")
+(load "~/.emacs.d/extra.el")
+(load "~/.emacs.d/sw.el")
+
+;; idk
+;; (setq gitlab-token "<REDACTED>")
+;; (setq gl-base "https://gitlab.singlewire.lan/api/v4/")
+
+;; (request (concat gl-base "merge_requests")
+;;   :parser 'json-read
+;;   :headers '(("Authorization" . (concat "Bearer " gitlab-token)))
+;;   :success (cl-function
+;;             (lambda (&key data &allow-other-keys)
+;;               (message "Got:  %S" (request-response-data data))))
+;;    :error (cl-function
+;;             (lambda (&key data &allow-other-keys)
+;;               (message "Got ERROR:  %S" data))))
+
+
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(adoc-code-face ((t (:inherit fixed-pitch :foreground "orange2"))))
+ '(adoc-gen-face ((t (:foreground "plum3"))))
+ '(adoc-meta-face ((t (:stipple nil :foreground "LightSkyBlue1" :inverse-video nil :box nil :strike-through nil :overline nil :underline nil :slant italic :weight normal :width normal :foundry "unknown" :family "Monospace"))))
+ '(adoc-meta-hide-face ((t (:inherit adoc-meta-face :foreground "gray65"))))
+ '(adoc-verbatim-face ((t nil)))
+ '(font-lock-comment-face ((t (:foreground "thistle4" :slant italic)))))
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(connection-local-criteria-alist
-   '(((:application eshell)
-      eshell-connection-default-profile)
-     ((:application tramp :protocol "flatpak")
+   '(((:application tramp :protocol "flatpak")
       tramp-container-connection-local-default-flatpak-profile)
      ((:application tramp :machine "localhost")
       tramp-connection-local-darwin-ps-profile)
-     ((:application tramp :machine "jkirschnik-mbp.singlewire.lan")
+     ((:application tramp :machine "jkirschnik-mpb")
       tramp-connection-local-darwin-ps-profile)
      ((:application tramp)
       tramp-connection-local-default-system-profile tramp-connection-local-default-shell-profile)))
  '(connection-local-profile-alist
-   '((eshell-connection-default-profile
-      (eshell-path-env-list))
-     (tramp-container-connection-local-default-flatpak-profile
+   '((tramp-container-connection-local-default-flatpak-profile
       (tramp-remote-path "/app/bin" tramp-default-remote-path "/bin" "/usr/bin" "/sbin" "/usr/sbin" "/usr/local/bin" "/usr/local/sbin" "/local/bin" "/local/freeware/bin" "/local/gnu/bin" "/usr/freeware/bin" "/usr/pkg/bin" "/usr/contrib/bin" "/opt/bin" "/opt/sbin" "/opt/local/bin"))
      (tramp-connection-local-darwin-ps-profile
       (tramp-process-attributes-ps-args "-acxww" "-o" "pid,uid,user,gid,comm=abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ" "-o" "state=abcde" "-o" "ppid,pgid,sess,tty,tpgid,minflt,majflt,time,pri,nice,vsz,rss,etime,pcpu,pmem,args")
@@ -269,16 +575,5 @@
      (tramp-connection-local-default-system-profile
       (path-separator . ":")
       (null-device . "/dev/null"))))
- '(custom-enabled-themes '(sanityinc-tomorrow-eighties))
- '(custom-safe-themes
-   '("51ec7bfa54adf5fff5d466248ea6431097f5a18224788d0bd7eb1257a4f7b773" "f5b6be56c9de9fd8bdd42e0c05fecb002dedb8f48a5f00e769370e4517dde0e8" "285d1bf306091644fb49993341e0ad8bafe57130d9981b680c1dbd974475c5c7" "57a29645c35ae5ce1660d5987d3da5869b048477a7801ce7ab57bfb25ce12d3e" "4c56af497ddf0e30f65a7232a8ee21b3d62a8c332c6b268c81e9ea99b11da0d3" "82d2cac368ccdec2fcc7573f24c3f79654b78bf133096f9b40c20d97ec1d8016" "06f0b439b62164c6f8f84fdda32b62fb50b6d00e8b01c2208e55543a6337433a" "bb08c73af94ee74453c90422485b29e5643b73b05e8de029a6909af6a3fb3f58" "1b8d67b43ff1723960eb5e0cba512a2c7a2ad544ddb2533a90101fd1852b426e" "628278136f88aa1a151bb2d6c8a86bf2b7631fbea5f0f76cba2a0079cd910f7d" default))
  '(package-selected-packages
-   '(diminish spaceline-all-the-icons prettier-js zenburn-theme yasnippet jdecomp darkroom counsel-projectile ivy-rich rjsx-mode ace-window avy git-gutter-fringe jarchive s eglot hugsql-ghosts git-gutter ripgrep use-package monokai-theme rainbow-delimiters paredit))
- '(tab-width 4)
- '(warning-suppress-types '((emacs) (emacs))))
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- )
+   '(monokai-theme tree-sitter-langs zenburn-theme org-pomodoro use-package lsp-java eglot adoc-mode which-key color-theme-sanityinc-tomorrow typescript-mode jdecomp cider find-file-in-project diminish pkg-info simple-httpd jarchive darkroom yasnippet ripgrep web-mode lsp-ui prettier-js sqlformat rjsx-mode yaml-mode vc-msg jet flycheck-clj-kondo exec-path-from-shell logview magit hl-todo ivy-rich spaceline-all-the-icons multiple-cursors rainbow-delimiters paredit solarized-theme keypression git-gutter-fringe oauth2 sideline counsel-projectile neotree company lsp-ivy lua-mode)))

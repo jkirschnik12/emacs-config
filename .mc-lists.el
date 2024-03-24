@@ -5,15 +5,18 @@
       '(
         backward-kill-sexp
         cider-load-buffer
+        counsel-yank-pop
         forward-sexp
         indent-for-tab-command
         kill-region
         kill-sentence
         kill-sexp
         mark-sexp
+        markdown-cycle
         my-paredit-delete
         org-beginning-of-line
         org-ctrl-c-ctrl-c
+        org-cycle
         org-delete-char
         org-delete-indentation
         org-end-of-line
@@ -32,6 +35,7 @@
         paredit-open-round
         paredit-open-square
         paredit-splice-sexp
+        undo-redo
         ))
 
 (setq mc/cmds-to-run-once
@@ -39,6 +43,7 @@
         ace-window
         counsel-M-x
         handle-switch-frame
+        ignore-preserving-kill-region
         ivy-switch-buffer
         lsp-ui-doc--handle-mouse-movement
         paredit-kill
