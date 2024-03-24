@@ -355,8 +355,10 @@
 (use-package swiper
   :bind
   (("C-s" . swiper)
-   ("C-r" . swiper)))
+   ("C-r" . swiper)
+   ("C-M-s" . swiper-thing-at-point)))
 
+(use-package fish-mode)
 (use-package counsel-projectile)
 
 (use-package recentf
@@ -383,12 +385,19 @@
   (when (memq window-system '(mac ns x))
     (exec-path-from-shell-initialize)))
 
-(use-package eshell
+(use-package esh-mode
   :ensure nil
+  :functions (eshell-send-input run-cmd-in-eshell)
   :config
   (defalias 'ff 'find-file)
   (defalias 'ms 'magit-status)
   (defalias 'cl 'eshell/clear-scrollback)
+  (defun run-cmd-in-eshell (cmd)
+    "Runs the command cmd in eshell."
+    (with-current-buffer "*eshell*"
+      (goto-char (point-max))
+      (insert cmd)
+      (eshell-send-input)))
   (when (memq window-system '(mac ns x))
     (add-to-list 'exec-path "/opt/homebrew/bin/")
     (add-to-list 'exec-path "/usr/bin/")
@@ -398,10 +407,20 @@
 		    (cd "~/code/dev-environment/admin-webapp")))
     (defalias 'ci (lambda ()
 		    (cd "~/code/dev-environment/cirrus-rest-api")))
+    (defalias 'rn (lambda ()
+		    (cd "~/code/dev-environment/icmobile-react-native")))
     (setenv "DEV_ENVIRONMENT_ROOT" "/Users/joe.kirschnik/code/dev-environment")
+    (defalias 'cb (lambda ()
+                    (cd "~/code/dev-environment")
+                    (eshell-command "bin/checkout-branches.clj" t)))
     (add-hook 'eshell-mode-hook (lambda ()
 			          (eshell/addpath "/opt/homebrew/bin/")
-                                  (eshell/addpath "/usr/bin/")))))
+                                  (eshell/addpath "/usr/bin/"))))
+  :bind
+  (:map eshell-mode-map
+        ("C-c C-o" . (lambda ()
+                       (interactive)
+                       (run-cmd-in-eshell "clear-scrollback")))))
 
 (use-package org-pomodoro
   :config
@@ -429,24 +448,27 @@
   :config
   (which-key-mode))
 
+(use-package ob-clojure
+  :ensure nil
+  :requires (cider)
+  :config
+  (setq org-babel-clojure-backend 'cider))
+
 (use-package org
-  :requires (ob-clojure cider)
+  :ensure nil
   :defines org-babel-clojure-backend
   :config
-  (setq org-babel-clojure-backend 'cider)
   (setq org-confirm-babel-evaluate nil)
+  (defun text-display-tweaks ()
+    (visual-line-mode)
+    (darkroom-mode)
+    (display-line-numbers-mode 0))
   :hook
-  (org-mode . (lambda ()
-		(visual-line-mode)
-		(darkroom-mode)
-		(display-line-numbers-mode 0))))
+  (org-mode . text-display-tweaks))
 
 (use-package color-theme-sanityinc-tomorrow
   :config
   (load-theme 'sanityinc-tomorrow-eighties t))
-
-(use-package emojify
-  :hook (after-init . global-emojify-mode))
 
 (setq counsel-linux-app-format-function
       'counsel-linux-app-format-function-name-pretty)
@@ -512,6 +534,7 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
+ '(blink-cursor-mode nil)
  '(connection-local-criteria-alist
    '(((:application tramp :protocol "flatpak")
       tramp-container-connection-local-default-flatpak-profile)
@@ -596,5 +619,8 @@
      (tramp-connection-local-default-system-profile
       (path-separator . ":")
       (null-device . "/dev/null"))))
+ '(global-display-line-numbers-mode t)
+ '(menu-bar-mode nil)
  '(package-selected-packages
-   '(monokai-theme tree-sitter-langs zenburn-theme org-pomodoro use-package lsp-java eglot adoc-mode which-key color-theme-sanityinc-tomorrow typescript-mode jdecomp cider find-file-in-project diminish pkg-info simple-httpd jarchive darkroom yasnippet ripgrep web-mode lsp-ui prettier-js sqlformat rjsx-mode yaml-mode vc-msg jet flycheck-clj-kondo exec-path-from-shell logview magit hl-todo ivy-rich spaceline-all-the-icons multiple-cursors rainbow-delimiters paredit solarized-theme keypression git-gutter-fringe oauth2 sideline counsel-projectile neotree company lsp-ivy lua-mode)))
+   '(fish-mode ob-clojure org-pomodoro use-package lsp-java eglot adoc-mode typescript-mode jdecomp find-file-in-project diminish pkg-info simple-httpd jarchive darkroom ripgrep prettier-js rjsx-mode yaml-mode vc-msg jet flycheck-clj-kondo ivy-rich spaceline-all-the-icons multiple-cursors rainbow-delimiters paredit solarized-theme keypression git-gutter-fringe oauth2 counsel-projectile neotree company lsp-ivy lua-mode))
+ '(tool-bar-mode nil))

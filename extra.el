@@ -25,6 +25,7 @@
 (tool-bar-mode -1)
 (blink-cursor-mode 0)
 (scroll-bar-mode -1)
+(add-to-list 'default-frame-alist '(undecorated . t))
 (global-display-line-numbers-mode)
 
 ;; Clipboard improvements
