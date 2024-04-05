@@ -448,6 +448,26 @@
 (use-package emojify
   :hook (after-init . global-emojify-mode))
 
+(setq counsel-linux-app-format-function
+      'counsel-linux-app-format-function-name-pretty)
+
+(defun emacs-run-launcher ()
+  "Create and select a frame called emacs-run-launcher which 
+   consists only of a minibuffer and has specific dimensions. 
+   Run counsel-linux-app on that frame,which is an emacs 
+   command that prompts you to select an app and open it in a 
+   dmenu like behaviour. Delete the frame after that command has exited"
+  (interactive)
+  (with-selected-frame
+      (make-frame '((name . "emacs-run-launcher")
+                    (minibuffer . only)
+                    (width . 120)
+                    (height . 11)
+                    (fullscreen . 0)))
+    (unwind-protect
+        (counsel-linux-app)
+      (delete-frame)))) 
+
 (use-package magit)
 (use-package s)
 (use-package lsp-ivy)
@@ -458,7 +478,8 @@
 
 (load "~/.emacs.d/functions.el")
 (load "~/.emacs.d/extra.el")
-(load "~/.emacs.d/sw.el")
+(when (memq window-system '(mac ns x))
+  (load "~/.emacs.d/sw.el"))
 
 ;; idk
 ;; (setq gitlab-token "<REDACTED>")
