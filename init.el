@@ -43,6 +43,24 @@
               (lambda () (unless (frame-focus-state)
                            (garbage-collect))))
 
+;;tree-sitter
+(setq treesit-language-source-alist
+   '((bash "https://github.com/tree-sitter/tree-sitter-bash")
+     (cmake "https://github.com/uyha/tree-sitter-cmake")
+     (css "https://github.com/tree-sitter/tree-sitter-css")
+     (elisp "https://github.com/Wilfred/tree-sitter-elisp")
+     (go "https://github.com/tree-sitter/tree-sitter-go")
+     (html "https://github.com/tree-sitter/tree-sitter-html")
+     (javascript "https://github.com/tree-sitter/tree-sitter-javascript" "master" "src")
+     (json "https://github.com/tree-sitter/tree-sitter-json")
+     (make "https://github.com/alemuller/tree-sitter-make")
+     (markdown "https://github.com/ikatyang/tree-sitter-markdown")
+     (python "https://github.com/tree-sitter/tree-sitter-python")
+     (toml "https://github.com/tree-sitter/tree-sitter-toml")
+     (tsx "https://github.com/tree-sitter/tree-sitter-typescript" "master" "tsx/src")
+     (typescript "https://github.com/tree-sitter/tree-sitter-typescript" "master" "typescript/src")
+     (yaml "https://github.com/ikatyang/tree-sitter-yaml")))
+
 
 
 (setq-default indent-tabs-mode nil)
@@ -79,6 +97,7 @@
   ((clojure-mode . lsp)
    (clojurec-mode . lsp)
    (clojurescript-mode . lsp)
+   (typescript-ts-mode . lsp)
    (typescript-mode . lsp))
   
   :bind
@@ -149,6 +168,12 @@
    (scheme-mode . enable-paredit-mode)
    (clojure-mode . enable-paredit-mode)
    (cider-repl-mode . enable-paredit-mode)))
+
+(use-package typescript-mode
+  :config
+  (add-to-list 'auto-mode-alist '("\\.tsx\\'" . typescript-ts-mode))
+  (add-to-list 'auto-mode-alist '("\\.ts\\'" . typescript-ts-mode))
+  )
 
 (use-package cider
   :functions (cider-interactive-eval
@@ -488,9 +513,15 @@
                     (fullscreen . 0)))
     (unwind-protect
         (counsel-linux-app)
-      (delete-frame)))) 
+      (delete-frame))))
 
-(use-package magit)
+(use-package magit
+  :config
+  (transient-append-suffix 'magit-push "-u"
+    '(1 "=s" "Skip gitlab pipeline" "--push-option=ci.skip"))
+  (transient-append-suffix 'magit-commit "-C"
+    '(1 "=n" "no verify" "--no-verify"))
+  )
 (use-package s)
 (use-package lsp-ivy)
 (use-package darkroom)
@@ -622,5 +653,5 @@
  '(global-display-line-numbers-mode t)
  '(menu-bar-mode nil)
  '(package-selected-packages
-   '(fish-mode ob-clojure org-pomodoro use-package lsp-java eglot adoc-mode typescript-mode jdecomp find-file-in-project diminish pkg-info simple-httpd jarchive darkroom ripgrep prettier-js rjsx-mode yaml-mode vc-msg jet flycheck-clj-kondo ivy-rich spaceline-all-the-icons multiple-cursors rainbow-delimiters paredit solarized-theme keypression git-gutter-fringe oauth2 counsel-projectile neotree company lsp-ivy lua-mode))
+   '(magit fish-mode ob-clojure org-pomodoro use-package lsp-java eglot adoc-mode typescript-mode jdecomp find-file-in-project diminish pkg-info simple-httpd jarchive darkroom ripgrep prettier-js rjsx-mode yaml-mode vc-msg jet flycheck-clj-kondo ivy-rich spaceline-all-the-icons multiple-cursors rainbow-delimiters paredit solarized-theme keypression git-gutter-fringe oauth2 counsel-projectile neotree company lsp-ivy lua-mode))
  '(tool-bar-mode nil))
