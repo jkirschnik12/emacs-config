@@ -22,3 +22,7 @@
     (progn
       (message "Flyspell on")
       (flyspell-mode))))
+
+(defun sql-scratch ()
+  (interactive)
+  (find-file "~/code/scratch.sql"))

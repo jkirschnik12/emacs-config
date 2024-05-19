@@ -5,20 +5,10 @@
 (setq create-lockfiles nil)
 (setq inhibit-startup-message t)
 
-(defun font-12 ()
-  "Change font to height 12."
-  (interactive)
-  (set-face-attribute 'default nil :height 120))
-
-(defun font-14 ()
-  "Change font to height 14."
-  (interactive)
-  (set-face-attribute 'default nil :height 140))
-
-(defun font-16 ()
-  "Change font to height 14."
-  (interactive)
-  (set-face-attribute 'default nil :height 160))
+(defun fonts (height)
+  "Change font to height `height`."
+  (interactive "nFont Size: ")
+  (set-face-attribute 'default nil :height (* height 10)))
 
 ;; UI improvements
 (menu-bar-mode -1)
@@ -33,7 +23,8 @@
  select-enable-clipboard t
  select-enable-primary t
  save-interprogram-paste-before-kill t
- mouse-yank-at-point t)
+ mouse-yank-at-point t
+ electric-indent-mode t)
 
 ;; Highlight matching paren
 (show-paren-mode 1)
@@ -46,6 +37,7 @@
 (global-set-key (kbd "C-c C-d") 'delete-indentation)
 
 ;; More standard-like C-backspace
+
 (defun my-kill-back ()
   (interactive)
   (if (bolp)

@@ -45,21 +45,21 @@
 
 ;;tree-sitter
 (setq treesit-language-source-alist
-   '((bash "https://github.com/tree-sitter/tree-sitter-bash")
-     (cmake "https://github.com/uyha/tree-sitter-cmake")
-     (css "https://github.com/tree-sitter/tree-sitter-css")
-     (elisp "https://github.com/Wilfred/tree-sitter-elisp")
-     (go "https://github.com/tree-sitter/tree-sitter-go")
-     (html "https://github.com/tree-sitter/tree-sitter-html")
-     (javascript "https://github.com/tree-sitter/tree-sitter-javascript" "master" "src")
-     (json "https://github.com/tree-sitter/tree-sitter-json")
-     (make "https://github.com/alemuller/tree-sitter-make")
-     (markdown "https://github.com/ikatyang/tree-sitter-markdown")
-     (python "https://github.com/tree-sitter/tree-sitter-python")
-     (toml "https://github.com/tree-sitter/tree-sitter-toml")
-     (tsx "https://github.com/tree-sitter/tree-sitter-typescript" "master" "tsx/src")
-     (typescript "https://github.com/tree-sitter/tree-sitter-typescript" "master" "typescript/src")
-     (yaml "https://github.com/ikatyang/tree-sitter-yaml")))
+      '((bash "https://github.com/tree-sitter/tree-sitter-bash")
+        (cmake "https://github.com/uyha/tree-sitter-cmake")
+        (css "https://github.com/tree-sitter/tree-sitter-css")
+        (elisp "https://github.com/Wilfred/tree-sitter-elisp")
+        (go "https://github.com/tree-sitter/tree-sitter-go")
+        (html "https://github.com/tree-sitter/tree-sitter-html")
+        (javascript "https://github.com/tree-sitter/tree-sitter-javascript" "master" "src")
+        (json "https://github.com/tree-sitter/tree-sitter-json")
+        (make "https://github.com/alemuller/tree-sitter-make")
+        (markdown "https://github.com/ikatyang/tree-sitter-markdown")
+        (python "https://github.com/tree-sitter/tree-sitter-python")
+        (toml "https://github.com/tree-sitter/tree-sitter-toml")
+        (tsx "https://github.com/tree-sitter/tree-sitter-typescript" "master" "tsx/src")
+        (typescript "https://github.com/tree-sitter/tree-sitter-typescript" "master" "typescript/src")
+        (yaml "https://github.com/ikatyang/tree-sitter-yaml")))
 
 
 
@@ -95,6 +95,7 @@
   
   :hook
   ((clojure-mode . lsp)
+   (clojure-ts-mode . lsp)
    (clojurec-mode . lsp)
    (clojurescript-mode . lsp)
    (typescript-ts-mode . lsp)
@@ -127,6 +128,7 @@
 	       (getenv "PATH"))
             (getenv "PATH")))
   (dolist (m '(clojure-mode
+               clojure-ts-mode
 	       clojurec-mode
 	       clojurescript-mode
 	       clojurex-mode))
@@ -147,33 +149,65 @@
   (setq lsp-ui-doc-enable t)
   (setq lsp-ui-doc-show-with-mouse t))
 
-(use-package paredit
-  :diminish paredit-mode
+;; (use-package paredit
+;;   :diminish paredit-mode
+;;   :config
+;;   (defun my-paredit-delete ()
+;;     "Intellij like delete where indentation is deleted when all chars 
+;;      from bol to cursor are blank."
+;;     (interactive)
+;;     (if (string-match "^\s*$" (buffer-substring (pos-bol) (point)))
+;;         (delete-indentation)
+;;       (paredit-backward-delete)))
+;;   :bind
+;;   (:map paredit-mode-map
+;;         ("DEL" . my-paredit-delete))
+;;   :hook
+;;   ((emacs-lisp-mode . enable-paredit-mode)
+;;    (ielm-mode . enable-paredit-mode)
+;;    (lisp-mode . enable-paredit-mode)
+;;    (lisp-interaction-mode . enable-paredit-mode)
+;;    (scheme-mode . enable-paredit-mode)
+;;    (clojure-ts-mode . enable-paredit-mode)
+;;    (cider-repl-mode . enable-paredit-mode)))
+
+(use-package smartparens
+  :demand t
+  :ensure smartparens  ;; install the package
+  :bind
+  (:map smartparens-mode-map
+        ("C-k" . sp-kill-hybrid-sexp)
+        ("C-M-k" . sp-kill-sexp)
+        ("C-M-w" . sp-copy-sexp)
+        ("M-s" . sp-splice-sexp)
+        ("C-<right>" . sp-forward-slurp-sexp)
+        ("C-<left>" . sp-forward-barf-sexp)
+        ("C-M-<right>" . sp-backward-slurp-sexp)
+        ("C-M-<left>" . sp-backward-barf-sexp)
+        ("C-M-f" . sp-forward-sexp)
+        ("C-M-b" . sp-backward-sexp)
+        ("DEL" . my-paredit-delete)
+        ("M-f" . sp-forward-symbol)
+        ("M-b" . sp-backward-symbol))
   :config
+  (smartparens-global-mode)
+  (smartparens-global-strict-mode)
+  (sp-local-pair '(clojure-ts-mode clojure-mode emacs-lisp-mode lisp-mode)
+                 '"'" nil :actions nil)
+  ;; load default config
   (defun my-paredit-delete ()
     "Intellij like delete where indentation is deleted when all chars 
      from bol to cursor are blank."
     (interactive)
     (if (string-match "^\s*$" (buffer-substring (pos-bol) (point)))
         (delete-indentation)
-      (paredit-backward-delete)))
-  :bind
-  (:map paredit-mode-map
-        ("DEL" . my-paredit-delete))
-  :hook
-  ((emacs-lisp-mode . enable-paredit-mode)
-   (ielm-mode . enable-paredit-mode)
-   (lisp-mode . enable-paredit-mode)
-   (lisp-interaction-mode . enable-paredit-mode)
-   (scheme-mode . enable-paredit-mode)
-   (clojure-mode . enable-paredit-mode)
-   (cider-repl-mode . enable-paredit-mode)))
+      (sp-backward-delete-char))))
 
 (use-package typescript-mode
+  :demand t
   :config
   (add-to-list 'auto-mode-alist '("\\.tsx\\'" . typescript-ts-mode))
-  (add-to-list 'auto-mode-alist '("\\.ts\\'" . typescript-ts-mode))
-  )
+  (add-to-list 'auto-mode-alist '("\\.ts\\'" . typescript-ts-mode)))
 
 (use-package cider
   :functions (cider-interactive-eval
@@ -222,9 +256,11 @@
          ("<C-return>" . paredit-RET)
          ("RET" . cider-repl-closing-return))))
 
-(use-package clojure-mode
-  :config
-  (setq clojure-align-forms-automatically t))
+;; (use-package clojure-mode
+;;   :config
+;;   (setq clojure-align-forms-automatically t))
+
+(use-package clojure-ts-mode)
 
 (use-package eldoc
   :diminish eldoc-mode
@@ -264,14 +300,13 @@
 
 (use-package counsel
   :diminish counsel-mode
+  :config
+  (counsel-mode 1)
   :bind
-  (("C-c i" . counsel-imenu)
-   ("M-x" . counsel-M-x)
-   ("C-c k" . counsel-rg)))
+  (("C-c k" . counsel-rg)))
 
 (use-package sqlformat
-  :requires sql
-  :defines sql-mode-map
+  :demand t
   :config
   (setq sqlformat-command 'pgformatter)
   ;; placeholder thing "-p'\B:[\w-]*/gm'"
@@ -294,11 +329,14 @@
   (setq avy-all-windows nil)
   :bind
   (("M-g l" . avy-goto-line)
-   ("C-'" . avy-goto-word-1)))
+   ("M-g w" . avy-goto-word-1)
+   ("C-'" . avy-goto-char-2)
+   ("C-\"" . avy-goto-char-timer)))
 
 (use-package hl-todo
+  :demand t
   :config
-  (global-hl-todo-mode)
+  (global-hl-todo-mode 1)
   (setq hl-todo-keyword-faces
         '(("TODO"   . "#ffe700")
           ("todo"   . "#ffe700")
@@ -354,10 +392,11 @@
   (add-to-list 'ivy-ignore-buffers "\\*Messages\\*")
   (add-to-list 'ivy-ignore-buffers "\\*cider-test-report\\*")
   (add-to-list 'ivy-ignore-buffers "\\*Help\\*")
-  (add-to-list 'ivy-ignore-buffers "\\*clojure-lsp\\*")
-  (add-to-list 'ivy-ignore-buffers "\\*clojure-lsp::stderr\\*")
+  (add-to-list 'ivy-ignore-buffers "\\*clojure-lsp.*\\*")
   (add-to-list 'ivy-ignore-buffers "\\*lsp-log\\*")
   (add-to-list 'ivy-ignore-buffers "\\*scratch\\*")
+  (add-to-list 'ivy-ignore-buffers "\\*SQL:.*\\*")
+  (add-to-list 'ivy-ignore-buffers "\\*Backtrace\\*")
   ;; idk what this does
   (setcdr (assq t ivy-format-functions-alist) 'ivy-format-function-line)
   (setq ivy-re-builders-alist
@@ -567,91 +606,52 @@
  ;; If there is more than one, they won't work right.
  '(blink-cursor-mode nil)
  '(connection-local-criteria-alist
-   '(((:application tramp :protocol "flatpak")
-      tramp-container-connection-local-default-flatpak-profile)
-     ((:application tramp :machine "localhost")
-      tramp-connection-local-darwin-ps-profile)
-     ((:application tramp :machine "jkirschnik-mpb")
-      tramp-connection-local-darwin-ps-profile)
-     ((:application tramp)
-      tramp-connection-local-default-system-profile tramp-connection-local-default-shell-profile)))
+   '(((:application tramp :protocol "flatpak") tramp-container-connection-local-default-flatpak-profile)
+     ((:application tramp :machine "localhost") tramp-connection-local-darwin-ps-profile)
+     ((:application tramp :machine "jkirschnik-mpb") tramp-connection-local-darwin-ps-profile)
+     ((:application tramp) tramp-connection-local-default-system-profile tramp-connection-local-default-shell-profile)))
  '(connection-local-profile-alist
    '((tramp-container-connection-local-default-flatpak-profile
-      (tramp-remote-path "/app/bin" tramp-default-remote-path "/bin" "/usr/bin" "/sbin" "/usr/sbin" "/usr/local/bin" "/usr/local/sbin" "/local/bin" "/local/freeware/bin" "/local/gnu/bin" "/usr/freeware/bin" "/usr/pkg/bin" "/usr/contrib/bin" "/opt/bin" "/opt/sbin" "/opt/local/bin"))
+      (tramp-remote-path "/app/bin" tramp-default-remote-path "/bin" "/usr/bin" "/sbin" "/usr/sbin" "/usr/local/bin"
+                         "/usr/local/sbin" "/local/bin" "/local/freeware/bin" "/local/gnu/bin" "/usr/freeware/bin"
+                         "/usr/pkg/bin" "/usr/contrib/bin" "/opt/bin" "/opt/sbin" "/opt/local/bin"))
      (tramp-connection-local-darwin-ps-profile
-      (tramp-process-attributes-ps-args "-acxww" "-o" "pid,uid,user,gid,comm=abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ" "-o" "state=abcde" "-o" "ppid,pgid,sess,tty,tpgid,minflt,majflt,time,pri,nice,vsz,rss,etime,pcpu,pmem,args")
-      (tramp-process-attributes-ps-format
-       (pid . number)
-       (euid . number)
-       (user . string)
-       (egid . number)
-       (comm . 52)
-       (state . 5)
-       (ppid . number)
-       (pgrp . number)
-       (sess . number)
-       (ttname . string)
-       (tpgid . number)
-       (minflt . number)
-       (majflt . number)
-       (time . tramp-ps-time)
-       (pri . number)
-       (nice . number)
-       (vsize . number)
-       (rss . number)
-       (etime . tramp-ps-time)
-       (pcpu . number)
-       (pmem . number)
-       (args)))
+      (tramp-process-attributes-ps-args "-acxww" "-o"
+                                        "pid,uid,user,gid,comm=abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+                                        "-o" "state=abcde" "-o"
+                                        "ppid,pgid,sess,tty,tpgid,minflt,majflt,time,pri,nice,vsz,rss,etime,pcpu,pmem,args")
+      (tramp-process-attributes-ps-format (pid . number) (euid . number) (user . string) (egid . number) (comm . 52)
+                                          (state . 5) (ppid . number) (pgrp . number) (sess . number) (ttname . string)
+                                          (tpgid . number) (minflt . number) (majflt . number) (time . tramp-ps-time)
+                                          (pri . number) (nice . number) (vsize . number) (rss . number)
+                                          (etime . tramp-ps-time) (pcpu . number) (pmem . number) (args)))
      (tramp-connection-local-busybox-ps-profile
-      (tramp-process-attributes-ps-args "-o" "pid,user,group,comm=abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ" "-o" "stat=abcde" "-o" "ppid,pgid,tty,time,nice,etime,args")
-      (tramp-process-attributes-ps-format
-       (pid . number)
-       (user . string)
-       (group . string)
-       (comm . 52)
-       (state . 5)
-       (ppid . number)
-       (pgrp . number)
-       (ttname . string)
-       (time . tramp-ps-time)
-       (nice . number)
-       (etime . tramp-ps-time)
-       (args)))
+      (tramp-process-attributes-ps-args "-o" "pid,user,group,comm=abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+                                        "-o" "stat=abcde" "-o" "ppid,pgid,tty,time,nice,etime,args")
+      (tramp-process-attributes-ps-format (pid . number) (user . string) (group . string) (comm . 52) (state . 5)
+                                          (ppid . number) (pgrp . number) (ttname . string) (time . tramp-ps-time)
+                                          (nice . number) (etime . tramp-ps-time) (args)))
      (tramp-connection-local-bsd-ps-profile
-      (tramp-process-attributes-ps-args "-acxww" "-o" "pid,euid,user,egid,egroup,comm=abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ" "-o" "state,ppid,pgid,sid,tty,tpgid,minflt,majflt,time,pri,nice,vsz,rss,etimes,pcpu,pmem,args")
-      (tramp-process-attributes-ps-format
-       (pid . number)
-       (euid . number)
-       (user . string)
-       (egid . number)
-       (group . string)
-       (comm . 52)
-       (state . string)
-       (ppid . number)
-       (pgrp . number)
-       (sess . number)
-       (ttname . string)
-       (tpgid . number)
-       (minflt . number)
-       (majflt . number)
-       (time . tramp-ps-time)
-       (pri . number)
-       (nice . number)
-       (vsize . number)
-       (rss . number)
-       (etime . number)
-       (pcpu . number)
-       (pmem . number)
-       (args)))
-     (tramp-connection-local-default-shell-profile
-      (shell-file-name . "/bin/sh")
-      (shell-command-switch . "-c"))
-     (tramp-connection-local-default-system-profile
-      (path-separator . ":")
-      (null-device . "/dev/null"))))
+      (tramp-process-attributes-ps-args "-acxww" "-o"
+                                        "pid,euid,user,egid,egroup,comm=abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+                                        "-o"
+                                        "state,ppid,pgid,sid,tty,tpgid,minflt,majflt,time,pri,nice,vsz,rss,etimes,pcpu,pmem,args")
+      (tramp-process-attributes-ps-format (pid . number) (euid . number) (user . string) (egid . number)
+                                          (group . string) (comm . 52) (state . string) (ppid . number) (pgrp . number)
+                                          (sess . number) (ttname . string) (tpgid . number) (minflt . number)
+                                          (majflt . number) (time . tramp-ps-time) (pri . number) (nice . number)
+                                          (vsize . number) (rss . number) (etime . number) (pcpu . number)
+                                          (pmem . number) (args)))
+     (tramp-connection-local-default-shell-profile (shell-file-name . "/bin/sh") (shell-command-switch . "-c"))
+     (tramp-connection-local-default-system-profile (path-separator . ":") (null-device . "/dev/null"))))
  '(global-display-line-numbers-mode t)
  '(menu-bar-mode nil)
  '(package-selected-packages
-   '(magit fish-mode ob-clojure org-pomodoro use-package lsp-java eglot adoc-mode typescript-mode jdecomp find-file-in-project diminish pkg-info simple-httpd jarchive darkroom ripgrep prettier-js rjsx-mode yaml-mode vc-msg jet flycheck-clj-kondo ivy-rich spaceline-all-the-icons multiple-cursors rainbow-delimiters paredit solarized-theme keypression git-gutter-fringe oauth2 counsel-projectile neotree company lsp-ivy lua-mode))
+   '(adoc-mode clojure-ts-mode company counsel-projectile darkroom diminish eglot find-file-in-project fish-mode
+               flycheck-clj-kondo git-gutter-fringe ivy-rich jarchive jdecomp jet keypression lsp-ivy lsp-java lua-mode
+               magit multiple-cursors neotree oauth2 ob-clojure org-pomodoro paredit pkg-info prettier-js
+               rainbow-delimiters ripgrep rjsx-mode simple-httpd smartparens solarized-theme spaceline-all-the-icons
+               typescript-mode use-package vc-msg yaml-mode))
  '(tool-bar-mode nil))
+(put 'magit-clean 'disabled nil)
+(put 'scroll-left 'disabled nil)
