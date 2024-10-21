@@ -3,6 +3,11 @@
   (interactive)
   (find-file "~/.emacs.d/init.el"))
 
+(defun kitty ()
+  "Jump to kitty.conf file."
+  (interactive)
+  (find-file "~/.config/kitty/kitty.conf"))
+
 (defun econf ()
   "Open Emacs config."
   (interactive)

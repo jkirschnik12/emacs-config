@@ -35,6 +35,11 @@
         paredit-open-round
         paredit-open-square
         paredit-splice-sexp
+        sp-backward-sexp
+        sp-delete-char
+        sp-forward-sexp
+        sp-forward-slurp-sexp
+        sp-kill-sexp
         undo-redo
         ))
 
@@ -47,5 +52,6 @@
         ivy-switch-buffer
         lsp-ui-doc--handle-mouse-movement
         paredit-kill
+        scroll-right
         xref-find-definitions
         ))

@@ -4,7 +4,7 @@
 (add-to-list 'package-archives
              '("melpa-stable" . "http://stable.melpa.org/packages/") t)
 (package-initialize)
-
+(setenv "LSP_USE_PLISTS" "true")
 
 ;; This is only needed once, near the top of the file
 (eval-when-compile
@@ -15,7 +15,7 @@
   (setq use-package-always-ensure t))
 
 (require 'diminish)
-(require 'bind-key) 
+(require 'bind-key)
 
 ;; Start emacs server
 (use-package server
@@ -65,6 +65,20 @@
 
 (setq-default indent-tabs-mode nil)
 
+(use-package exec-path-from-shell
+  :config
+  (add-to-list 'exec-path-from-shell-variables "LSP_USE_PLISTS")
+  (when (memq window-system '(mac ns x))
+    (exec-path-from-shell-initialize)))
+
+(use-package kkp
+  :ensure t
+  :config
+  (setq kkp-control-modifier 'super)
+  (setq kkp-super-modifier 'control)
+  ;; (setq kkp-alt-modifier 'alt) ;; use this if you want to map the Alt keyboard modifier to Alt in Emacs (and not to Meta)
+  (global-kkp-mode +1))
+
 (use-package flycheck
   :config
   (setq-default flycheck-emacs-lisp-load-path 'inherit)
@@ -92,6 +106,7 @@
 
   :init
   (setq lsp-keymap-prefix "C-c l")
+  (setq lsp-auto-execute-action nil)
   
   :hook
   ((clojure-mode . lsp)
@@ -99,6 +114,8 @@
    (clojurec-mode . lsp)
    (clojurescript-mode . lsp)
    (typescript-ts-mode . lsp)
+   (tsx-ts-mode . lsp)
+   (java-mode . lsp)
    (typescript-mode . lsp))
   
   :bind
@@ -108,10 +125,8 @@
         ("C-c l r" . lsp-rename)
         ("C-c l o" . lsp-organize-imports)
         ("C-c l a" . lsp-execute-code-action))
-
   :init
   (setenv "LSP_USE_PLISTS" "true")
-  
   :config 
   (setq lsp-headerline-breadcrumb-enable t)
   (setq lsp-lens-enable nil)
@@ -120,7 +135,6 @@
   (setq lsp-use-plists t)
   (setq lsp-enable-indentation nil)
   (setq lsp-enable-on-type-formatting nil)
-  ;; add paths to your local installation of project mgmt tools, like lein
   (setenv "PATH"
           (if (eq system-type 'darwin)
               (concat
@@ -149,27 +163,12 @@
   (setq lsp-ui-doc-enable t)
   (setq lsp-ui-doc-show-with-mouse t))
 
-;; (use-package paredit
-;;   :diminish paredit-mode
-;;   :config
-;;   (defun my-paredit-delete ()
-;;     "Intellij like delete where indentation is deleted when all chars 
-;;      from bol to cursor are blank."
-;;     (interactive)
-;;     (if (string-match "^\s*$" (buffer-substring (pos-bol) (point)))
-;;         (delete-indentation)
-;;       (paredit-backward-delete)))
-;;   :bind
-;;   (:map paredit-mode-map
-;;         ("DEL" . my-paredit-delete))
-;;   :hook
-;;   ((emacs-lisp-mode . enable-paredit-mode)
-;;    (ielm-mode . enable-paredit-mode)
-;;    (lisp-mode . enable-paredit-mode)
-;;    (lisp-interaction-mode . enable-paredit-mode)
-;;    (scheme-mode . enable-paredit-mode)
-;;    (clojure-ts-mode . enable-paredit-mode)
-;;    (cider-repl-mode . enable-paredit-mode)))
+(use-package lsp-java
+  :config
+  ;; (setenv "JAVA_HOME"  "/Users/joe.kirschnik/.asdf/shims/java/Contents/Home/")
+  ;; (setq lsp-java-java-path "/Users/joe.kirschnik/.asdf/shims/java/Contents/Home/bin/java")
+  )
+
 
 (use-package smartparens
   :demand t
@@ -186,28 +185,22 @@
         ("C-M-<left>" . sp-backward-barf-sexp)
         ("C-M-f" . sp-forward-sexp)
         ("C-M-b" . sp-backward-sexp)
-        ("DEL" . my-paredit-delete)
+        ("DEL" . sp-backward-delete-char)
         ("M-f" . sp-forward-symbol)
         ("M-b" . sp-backward-symbol))
   :config
   (smartparens-global-mode)
-  (smartparens-global-strict-mode)
-  (sp-local-pair '(clojure-ts-mode clojure-mode emacs-lisp-mode lisp-mode)
-                 '"'" nil :actions nil)
-  ;; load default config
-  (defun my-paredit-delete ()
-    "Intellij like delete where indentation is deleted when all chars 
-     from bol to cursor are blank."
-    (interactive)
-    (if (string-match "^\s*$" (buffer-substring (pos-bol) (point)))
-        (delete-indentation)
-      (sp-backward-delete-char))))
+  (smartparens-global-strict-mode -1)
+  (sp-local-pair '(clojure-ts-mode clojure-mode emacs-lisp-mode lisp-mode cider-repl-mode)
+                 '"'" nil :actions nil))
 
 (use-package typescript-mode
-  :demand t
-  :config
-  (add-to-list 'auto-mode-alist '("\\.tsx\\'" . typescript-ts-mode))
-  (add-to-list 'auto-mode-alist '("\\.ts\\'" . typescript-ts-mode)))
+  :demand t)
+
+(use-package prettier-js
+  :hook ((typescript-ts-mode . prettier-js-mode)
+         (typescript-mode . prettier-js-mode)
+         (tsx-ts-mode . prettier-js-mode)))
 
 (use-package cider
   :functions (cider-interactive-eval
@@ -219,8 +212,8 @@
     (setq cider-lein-command "/opt/homebrew/bin/lein"))
   (setq cider-repl-buffer-size-limit 100000)
   (setq cider-use-xref t)
-  (setq cider-auto-select-error-buffer nil)
-  (setq cider-auto-select-test-report-buffer nil)
+  (setq cider-auto-select-error-buffer t)
+  (setq cider-auto-select-test-report-buffer t)
   (setq cider-xref-fn-depth 90)
   (setq cider-repl-display-help-banner nil)
   (setq cider-interactive-eval-output-destination 'repl-buffer)
@@ -233,19 +226,7 @@
       (save-buffer)
       (cider-interactive-eval
        (concat "(nextjournal.clerk/show! \"" filename "\")"))))
-
-  (defun clj-reload ()
-    "Performs clojure reload."
-    (interactive)
-    ;; (cider-load-buffer)
-    (let ((expr "(do
-                 (require '[clj-reload.core :as reload])
-                 (reload/reload)
-                 (println \"FIN\"))"))
-      (cider-interactive-eval expr
-                              (cider-insert-eval-handler (cider-current-repl))
-                              nil
-                              (cider--nrepl-print-request-map 120))))
+  (setq cider-ns-code-reload-tool 'clj-reload)
   :bind
   (("<f12>" . (lambda () (interactive) (cider-jack-in-universal 3)))
    (:map cider-mode-map
@@ -253,14 +234,14 @@
          ("C-c C-l" . clj-reload))
    (:map cider-repl-mode-map
          ("C-c C-o" . cider-repl-clear-buffer)
-         ("<C-return>" . paredit-RET)
+         ("<C-return>" . sp-newline)
          ("RET" . cider-repl-closing-return))))
 
-;; (use-package clojure-mode
-;;   :config
-;;   (setq clojure-align-forms-automatically t))
+(use-package clojure-mode
+  :config
+  (setq clojure-align-forms-automatically t))
 
-(use-package clojure-ts-mode)
+;; (use-package clojure-ts-mode)
 
 (use-package eldoc
   :diminish eldoc-mode
@@ -298,19 +279,13 @@
   :hook
   (prog-mode . rainbow-delimiters-mode))
 
-(use-package counsel
-  :diminish counsel-mode
-  :config
-  (counsel-mode 1)
-  :bind
-  (("C-c k" . counsel-rg)))
-
 (use-package sqlformat
   :demand t
   :config
   (setq sqlformat-command 'pgformatter)
   ;; placeholder thing "-p'\B:[\w-]*/gm'"
   (setq sqlformat-args '("-s2" "-g" "-w120"))
+  (require 'sql)
   :bind
   (:map sql-mode-map
         ("C-c l f" . sqlformat)
@@ -387,30 +362,22 @@
   (setq ivy-use-virtual-buffers t)
   (setq ivy-count-format "(%d/%d) ")
   (setq ivy-height 10)
-  (setq ivy-wrap t)
   (setq ivy-re-builders-alist '((t . ivy--regex-ignore-order)))
-  (add-to-list 'ivy-ignore-buffers "\\*Messages\\*")
-  (add-to-list 'ivy-ignore-buffers "\\*cider-test-report\\*")
-  (add-to-list 'ivy-ignore-buffers "\\*Help\\*")
-  (add-to-list 'ivy-ignore-buffers "\\*clojure-lsp.*\\*")
-  (add-to-list 'ivy-ignore-buffers "\\*lsp-log\\*")
-  (add-to-list 'ivy-ignore-buffers "\\*scratch\\*")
-  (add-to-list 'ivy-ignore-buffers "\\*SQL:.*\\*")
-  (add-to-list 'ivy-ignore-buffers "\\*Backtrace\\*")
   ;; idk what this does
   (setcdr (assq t ivy-format-functions-alist) 'ivy-format-function-line)
   (setq ivy-re-builders-alist
         '((read-file-name-internal . ivy--regex-fuzzy)
-          (t . ivy--regex-plus)))
-  (defun ivy-switch-buffer-all ()
-    (interactive)
-    (let ((ivy-ignore-buffers '()))
-      (ivy-switch-buffer)))
+          (t . ivy--regex-plus))))
+
+(use-package counsel
+  :diminish counsel-mode
+  :config
+  (counsel-mode 1)
   :bind
-  (("C-x b" . ivy-switch-buffer)
-   ("C-x B" . ivy-switch-buffer-all)
-   ("C-c v" . ivy-push-view)
-   ("C-c V" . ivy-pop-view)))
+  (("C-c k" . counsel-rg)
+   ("C-x C-f" . counsel-find-file)
+   ("C-x b" . counsel-switch-buffer)
+   ("C-c i" . counsel-imenu)))
 
 (use-package ivy-rich
   :config
@@ -443,11 +410,11 @@
         ("C-c p" . projectile-command-map)
         ("C-c p s" . counsel-projectile-rg)))
 
-(use-package exec-path-from-shell
-  :config
-  (add-to-list 'exec-path-from-shell-variables "LSP_USE_PLISTS")
-  (when (memq window-system '(mac ns x))
-    (exec-path-from-shell-initialize)))
+(add-to-list 'load-path "~/.emacs.d/misc/asdf.el")
+(require 'asdf)
+
+(asdf-enable) ;; This ensures Emacs has the correct paths to asdf shims and bin
+
 
 (use-package esh-mode
   :ensure nil
@@ -486,28 +453,6 @@
                        (interactive)
                        (run-cmd-in-eshell "clear-scrollback")))))
 
-(use-package org-pomodoro
-  :config
-  (setq org-pomodoro-play-sounds nil)
-  (setq org-pomodoro-manual-break t)
-
-  :hook
-  ((org-pomodoro-finished . (lambda ()
-                              (raise-frame (selected-frame))
-                              (momentary-string-display "Pomodoro Completed!" (point))))
-
-   (org-pomodoro-overtime . (lambda ()
-                              (raise-frame (selected-frame))
-                              (momentary-string-display "Overtime started!" (point))))
-
-   (org-pomodoro-short-break-finished . (lambda ()
-                                          (raise-frame (selected-frame))
-                                          (momentary-string-display "Short Break Completed!" (point))))
-
-   (org-pomodoro-long-break-finished . (lambda ()
-                                         (raise-frame (selected-frame))
-                                         (momentary-string-display "Long Break Completed!" (point))))))
-
 (use-package which-key
   :config
   (which-key-mode))
@@ -518,15 +463,22 @@
   :config
   (setq org-babel-clojure-backend 'cider))
 
+(use-package verb)
+
 (use-package org
   :ensure nil
   :defines org-babel-clojure-backend
   :config
+  (define-key org-mode-map (kbd "C-c C-r") verb-command-map)
+  (require 'org-tempo)
   (setq org-confirm-babel-evaluate nil)
   (defun text-display-tweaks ()
-    (visual-line-mode)
-    (darkroom-mode)
-    (display-line-numbers-mode 0))
+    (let* ((buf (current-buffer))
+           (name (buffer-file-name buf)))
+      (when (not (string-prefix-p "/Users/joe.kirschnik/reqs" name))
+        (visual-line-mode)
+        (darkroom-mode)
+        (display-line-numbers-mode 0))))
   :hook
   (org-mode . text-display-tweaks))
 
@@ -572,21 +524,6 @@
 (load "~/.emacs.d/extra.el")
 (when (memq window-system '(mac ns x))
   (load "~/.emacs.d/sw.el"))
-
-;; idk
-;; (setq gitlab-token "<REDACTED>")
-;; (setq gl-base "https://gitlab.singlewire.lan/api/v4/")
-
-;; (request (concat gl-base "merge_requests")
-;;   :parser 'json-read
-;;   :headers '(("Authorization" . (concat "Bearer " gitlab-token)))
-;;   :success (cl-function
-;;             (lambda (&key data &allow-other-keys)
-;;               (message "Got:  %S" (request-response-data data))))
-;;    :error (cl-function
-;;             (lambda (&key data &allow-other-keys)
-;;               (message "Got ERROR:  %S" data))))
-
 
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
@@ -644,14 +581,21 @@
                                           (pmem . number) (args)))
      (tramp-connection-local-default-shell-profile (shell-file-name . "/bin/sh") (shell-command-switch . "-c"))
      (tramp-connection-local-default-system-profile (path-separator . ":") (null-device . "/dev/null"))))
+ '(gitlab-lsp-major-modes
+   '(python-mode python-ts-mode go-mode go-ts-mode js-mode js-ts-mode java-mode java-ts-mode kotlin-mode kotlin-ts-mode
+                 ruby-mode ruby-ts-mode rust-mode rust-ts-mode tsx-ts-mode typescript-mode typescript-ts-mode vue-mode
+                 yaml-mode yaml-ts-mode clojure-mode))
  '(global-display-line-numbers-mode t)
  '(menu-bar-mode nil)
  '(package-selected-packages
-   '(adoc-mode clojure-ts-mode company counsel-projectile darkroom diminish eglot find-file-in-project fish-mode
-               flycheck-clj-kondo git-gutter-fringe ivy-rich jarchive jdecomp jet keypression lsp-ivy lsp-java lua-mode
-               magit multiple-cursors neotree oauth2 ob-clojure org-pomodoro paredit pkg-info prettier-js
-               rainbow-delimiters ripgrep rjsx-mode simple-httpd smartparens solarized-theme spaceline-all-the-icons
-               typescript-mode use-package vc-msg yaml-mode))
+   '(adoc-mode all-the-icons ascii-art-to-unicode cider color-theme-sanityinc-tomorrow counsel-projectile darkroom diminish
+               dirvish eglot exec-path-from-shell find-file-in-project fish-mode flycheck-clj-kondo git-gutter-fringe
+               gitlab-lsp hl-todo ivy-rich jarchive jdecomp jet js2-mode keypression kkp kotlin-ts-mode logview lsp-ivy
+               lsp-java lsp-ui lua-mode magit memoize multiple-cursors oauth2 paredit pkg-info prettier-js
+               quelpa-use-package rainbow-delimiters ripgrep rust-mode sideline simple-httpd smartparens spaceline
+               sqlformat tree-sitter-langs typescript-mode vc-msg verb web-mode which-key xpm yaml-mode yasnippet
+               yasnippet-snippets))
  '(tool-bar-mode nil))
 (put 'magit-clean 'disabled nil)
 (put 'scroll-left 'disabled nil)
+(put 'dired-find-alternate-file 'disabled nil)
